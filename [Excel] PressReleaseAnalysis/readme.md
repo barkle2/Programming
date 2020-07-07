@@ -3,5 +3,5 @@
 고용노동부 홈페이지에서 크롤링한 보도자료 내용으로 각 과별 보도자료가 얼마나 배포되었는지를 정리해보았습니다.
 실제 엑셀 작업 영상은 유튜브에서 보실 수 있습니다.
 
-> [코알못 14화 - 보도자료 분석하기(크롤링 소개)](https://www.youtube.com/watch?v=7bZWW89uSR4&t=17s)
+> [코알못 14화 - 보도자료 분석하기(크롤링 소개)](https://www.youtube.com/watch?v=7bZWW89uSR4&t=17s)  
 > [코알못 15화 - 보도자료 분석하기](https://www.youtube.com/watch?v=C2HPOkEZx6E&t=47s)
