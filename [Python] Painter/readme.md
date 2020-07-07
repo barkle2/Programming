@@ -5,7 +5,7 @@
 
 프로그래밍 과정 영상은 유튜브에서 보실 수 있습니다.
 
-> [코알못 8화 - 그림판 만들기 1/4](https://www.youtube.com/watch?v=FSbbfFY7c3o&t=1s)
-> [코알못 9화 - 그림판 만들기 2/4](https://www.youtube.com/watch?v=OccbFjPb8Jg&t=2s)
-> [코알못 10화 - 그림판 만들기 3/4](https://www.youtube.com/watch?v=ee-IHWS9_9c&t=3s)
-> [코알못 11화 - 그림판 만들기 4/4](https://www.youtube.com/watch?v=8ScP84Dx9aE&t=3s)
+> [코알못 8화 - 그림판 만들기 1/4](https://www.youtube.com/watch?v=FSbbfFY7c3o&t=1s)  
+> [코알못 9화 - 그림판 만들기 2/4](https://www.youtube.com/watch?v=OccbFjPb8Jg&t=2s)  
+> [코알못 10화 - 그림판 만들기 3/4](https://www.youtube.com/watch?v=ee-IHWS9_9c&t=3s)  
+> [코알못 11화 - 그림판 만들기 4/4](https://www.youtube.com/watch?v=8ScP84Dx9aE&t=3s)  
