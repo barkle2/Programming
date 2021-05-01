@@ -45,7 +45,7 @@ FDI data : from The Export-Import Bank of Korea (https://stats.koreaexim.go.kr/s
 <Background>
 1)	2010: Korea joined the Organization for Economic Cooperation and Development (OECD) Development Assistance Committee (DAC), which is a group of donor countries
 2)	2010~present : Korea has made various efforts to contribute to the international community through ODA
-The size or scale of Korea¡¯s ODA has been more than doubled in ten years, while many advanced donors have reduced or have not increased that of their ODA due to difficult economic conditions. For example, the size of Korea¡¯s ODA was about 1.2 billion dollars in 2010, when Korea joined DAC, but it has reached 2.5 billion dollars in 2019, while twelve donor countries including Spain, Greece, and Portugal among 29 members of OECD DAC have decreased their support of ODA during the same period (OECD DAC, 2020). Also, the Korean government has been working to drive a systematic and predictable ODA
+The size or scale of KoreaÂ¡Â¯s ODA has been more than doubled in ten years, while many advanced donors have reduced or have not increased that of their ODA due to difficult economic conditions. For example, the size of KoreaÂ¡Â¯s ODA was about 1.2 billion dollars in 2010, when Korea joined DAC, but it has reached 2.5 billion dollars in 2019, while twelve donor countries including Spain, Greece, and Portugal among 29 members of OECD DAC have decreased their support of ODA during the same period (OECD DAC, 2020). Also, the Korean government has been working to drive a systematic and predictable ODA
 3)	January, 2021 : Korean government newly selected 27 key ODA partners to be applied by 2025
 The number of key partners has increased slightly from 26 countries in 2010, 24 partners in 2015, to 27 partners this time
 
@@ -84,7 +84,7 @@ You can refer, if you are interested in this area
 ???	KDI School of Public Policy and Management. (2020). A Study on the Re-designation of Key Partner Countries. Sejong: KDI School of Public Policy and Management.
 ???	Kimura, Hidemi and Yasuyuki Todo. (2010). Is Foreign Aid a Vanguard of Foreign Direct Investment? A Gravity-Equation Approach. World Development 38(4): 482???497.
 ???	Kim, sewon, Kim, jonsub & Lee, youngsub. (2013). A Study on Operating Key Partner Countries in Major Donor Countries. Sejong: KIEP
-???	Kim, Sugwoo, and Namgung, Heejin. (2016). The Political Economy on Selecting Korea¡¯s Key Partners. Policy Information Study. 19(1): 135-158.
+???	Kim, Sugwoo, and Namgung, Heejin. (2016). The Political Economy on Selecting KoreaÂ¡Â¯s Key Partners. Policy Information Study. 19(1): 135-158.
 ???	Kim, Youngwan. (2017). Analysis of the First South Korean Focus Countries of Official Development Assistance : Focusing on Foreign Direct Investment. Korea Policy, 51(1), 287-386. 
 ???	Kosack, Stephen and Jennifer Tobin. (2006). Funding Self-Sustaining Development: The Role of Aid, FDI and Government in Economic Success. International Organization. 60(1): 205-243.
 ???	Lee, Kyewoo, & Park, Gihoon. (2007). Evaluation of Korea's 20-year ODA. KDI Journal of Economic Policy, 29(2), 41-74. 
