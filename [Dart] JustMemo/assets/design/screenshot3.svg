@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="2340" viewBox="0 0 1080 2340">
+  <rect width="100%" height="100%" fill="#fbfdff"/>
+  <rect x="60" y="120" width="960" height="2100" rx="60" fill="#fff" stroke="#f0f6ff" stroke-width="2"/>
+  <text x="140" y="240" font-family="sans-serif" font-size="34" fill="#27436a">태그로 정리</text>
+  <g transform="translate(140,300)">
+    <rect width="820" height="120" rx="14" fill="#fff" stroke="#eef4ff"/>
+    <g transform="translate(20,16)">
+      <rect width="220" height="48" rx="12" fill="#f1f8ff" stroke="#dfeeff"/>
+      <rect x="240" width="220" height="48" rx="12" fill="#fff1f8" stroke="#ffeaf0"/>
+      <rect x="480" width="220" height="48" rx="12" fill="#f7fff4" stroke="#e7fbe9"/>
+    </g>
+    <rect y="160" width="820" height="920" rx="14" fill="#fff" stroke="#eef4ff"/>
+    <text x="28" y="220" font-family="sans-serif" font-size="22" fill="#0b2546">#회의</text>
+    <text x="28" y="266" font-family="sans-serif" font-size="20" fill="#4a6aa6">회의 노트 - 2026-01-02</text>
+  </g>
+</svg>
