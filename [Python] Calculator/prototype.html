@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코드로 계산기 만들기</title>
+  <link rel="stylesheet" href="prototype.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Lesson 1</p>
+      <h1>코드로 계산기 만들기</h1>
+    </div>
+    <div class="stats" aria-label="학습 기록">
+      <div>
+        <span>진행</span>
+        <strong id="progressText">0 / 0</strong>
+      </div>
+      <div>
+        <span>연속 성공</span>
+        <strong id="streakText">0</strong>
+      </div>
+      <div>
+        <span>시간</span>
+        <strong id="timerText">00:00</strong>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <aside class="lesson-list" aria-label="학습 단계">
+      <div class="panel-head">
+        <h2>단계</h2>
+        <span id="lessonGoal"></span>
+      </div>
+      <ol id="stepList"></ol>
+    </aside>
+
+    <section class="learning-panel">
+      <div class="step-header">
+        <div>
+          <p class="eyebrow" id="stepId">L1-01</p>
+          <h2 id="stepTitle">불러오는 중...</h2>
+        </div>
+        <div class="concepts" id="concepts"></div>
+      </div>
+
+      <div class="explanation" id="explanation"></div>
+
+      <div class="mission">
+        <span>미션</span>
+        <p id="missionText"></p>
+      </div>
+    </section>
+
+    <section class="practice-panel">
+      <div class="editor-head">
+        <h2>직접 입력</h2>
+        <button type="button" id="resetStepBtn">다시 입력</button>
+      </div>
+      <div class="editor-wrap">
+        <pre id="codeGhost" aria-hidden="true"></pre>
+        <textarea id="codeInput" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+      </div>
+      <div class="actions">
+        <button type="button" id="runBtn">실행</button>
+        <button type="button" id="hintBtn">힌트</button>
+        <button type="button" id="nextBtn" disabled>다음 단계</button>
+      </div>
+
+      <div class="result" id="resultBox" data-state="idle">
+        <h3 id="resultTitle">준비 완료</h3>
+        <p id="resultMessage">설명을 읽고 코드를 직접 입력한 뒤 실행해보세요.</p>
+      </div>
+
+      <div class="badge-box">
+        <h3>배지</h3>
+        <div id="badges" class="badges"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="completion" id="completionModal" hidden>
+    <div class="completion-card">
+      <p class="eyebrow">Lesson Complete</p>
+      <h2>Lesson 1 완성!</h2>
+      <p id="completionSummary"></p>
+      <button type="button" id="closeCompletionBtn">계속 살펴보기</button>
+    </div>
+  </div>
+
+  <script src="prototype.js"></script>
+</body>
+</html>
