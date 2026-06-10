@@ -26,6 +26,8 @@ const els = {
   missionText: document.querySelector("#missionText"),
   codeInput: document.querySelector("#codeInput"),
   codeGhost: document.querySelector("#codeGhost"),
+  mascotImg: document.querySelector("#mascotImg"),
+  mascotBubble: document.querySelector("#mascotBubble"),
   resetStepBtn: document.querySelector("#resetStepBtn"),
   runBtn: document.querySelector("#runBtn"),
   hintBtn: document.querySelector("#hintBtn"),
@@ -82,6 +84,14 @@ function renderStep(index) {
   els.codeInput.value = getCodeForEditor(index);
   updateCodeGhost();
   els.nextBtn.disabled = !state.completed.has(step.id);
+  if (step.mascot) {
+    els.mascotImg.src = step.mascot;
+    els.mascotImg.alt = "고드래곤";
+    els.mascotBubble.textContent = step.mascotSpeech || "";
+    els.mascotImg.closest(".mascot-wrap").hidden = false;
+  } else {
+    els.mascotImg.closest(".mascot-wrap").hidden = true;
+  }
   setResult("idle", "준비 완료", "설명을 읽고 코드를 직접 입력한 뒤 실행해보세요.");
 
   [...els.stepList.querySelectorAll("button")].forEach((button, buttonIndex) => {
@@ -157,7 +167,8 @@ function showHint() {
   setResult("hint", "힌트", `이번 단계의 정답은 ${step.expectedCode.length}글자입니다. 핵심 단어는 \`${step.expectedCode.split(" ")[0]}\`입니다.`);
 }
 
-function nextStep() {
+async function nextStep() {
+  try { await fetch("/stop", { method: "POST" }); } catch (_) {}
   const nextIndex = Math.min(state.currentIndex + 1, state.data.steps.length - 1);
   renderStep(nextIndex);
 }

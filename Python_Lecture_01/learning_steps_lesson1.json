@@ -64,7 +64,9 @@
           "message": "별명을 붙일 때는 가운데에 `as`가 필요하다. `import tkinter as tk`처럼 써야 한다."
         }
       ],
-      "successMessage": "좋아요. 이제 Python이 Tkinter 도구를 사용할 준비를 마쳤어요."
+      "successMessage": "좋아요. 이제 Python이 Tkinter 도구를 사용할 준비를 마쳤어요.",
+      "mascot": "고드래곤_01.jpg",
+      "mascotSpeech": "Python에는 엄청난 도구상자가 있어! 우리는 그 중에서 tkinter를 꺼내 쓸 거야. import as는 '별명을 붙여서 가져오기'야~"
     },
     {
       "id": "L1-02",
@@ -90,7 +92,9 @@
           "message": "`tk.Tk` 뒤에 괄호 `()`가 있어야 실제로 창을 만든다."
         }
       ],
-      "successMessage": "창을 만들 준비가 됐어요. 아직 화면이 오래 유지되지는 않지만 핵심 재료가 생겼습니다."
+      "successMessage": "창을 만들 준비가 됐어요. 아직 화면이 오래 유지되지는 않지만 핵심 재료가 생겼습니다.",
+      "mascot": "고드래곤_07.gif",
+      "mascotSpeech": "짠! 드디어 창이 생겼어! tk.Tk()의 괄호()가 진짜로 창을 만드는 마법이야. main_win은 그 창의 이름표고~"
     },
     {
       "id": "L1-03",
@@ -116,7 +120,9 @@
           "message": "Python은 대소문자를 구분한다. `Title`이 아니라 `title`이다."
         }
       ],
-      "successMessage": "좋아요. 이제 계산기 창에 이름표가 붙었습니다."
+      "successMessage": "좋아요. 이제 계산기 창에 이름표가 붙었습니다.",
+      "mascot": "고드래곤_01.jpg",
+      "mascotSpeech": "이름 없는 창은 쓸쓸하잖아! title()에 원하는 이름을 넣으면 제목 표시줄에 뜨는 거야. 나도 이름이 있어서 다행이지~"
     },
     {
       "id": "L1-04",
@@ -142,7 +148,9 @@
           "message": "색 이름은 글자 데이터다. `\"light green\"`처럼 따옴표로 감싸야 한다."
         }
       ],
-      "successMessage": "입력창 재료가 만들어졌어요. 다음 단계에서 화면에 배치해봅시다."
+      "successMessage": "입력창 재료가 만들어졌어요. 다음 단계에서 화면에 배치해봅시다.",
+      "mascot": "고드래곤_08.png",
+      "mascotSpeech": "옵션이 많아 보여도 겁먹지 마! width=45는 입력창 너비, bg=\"light green\"은 배경색. 괄호 안을 천천히 읽으면 다 보여~"
     },
     {
       "id": "L1-05",
@@ -168,7 +176,9 @@
           "message": "`gird`가 아니라 `grid`다. 철자 순서를 다시 확인해보자."
         }
       ],
-      "successMessage": "입력창이 화면에 자리 잡았어요."
+      "successMessage": "입력창이 화면에 자리 잡았어요.",
+      "mascot": "고드래곤_08.png",
+      "mascotSpeech": "grid는 엑셀 표를 생각해봐! row는 가로줄 번호, column은 세로칸 번호야. row=0, column=0이면 맨 왼쪽 위 칸!"
     },
     {
       "id": "L1-06",
@@ -194,7 +204,9 @@
           "message": "Tkinter의 버튼 이름은 대문자 B를 사용하는 `Button`이다."
         }
       ],
-      "successMessage": "첫 번째 버튼이 만들어졌어요. 이제 화면에 놓아봅시다."
+      "successMessage": "첫 번째 버튼이 만들어졌어요. 이제 화면에 놓아봅시다.",
+      "mascot": "고드래곤_07.gif",
+      "mascotSpeech": "버튼이야! 드디어 누를 게 생겼어! text는 버튼에 적힐 글자, width는 버튼 크기. 이 패턴 잘 기억해둬~"
     },
     {
       "id": "L1-07",
@@ -215,7 +227,9 @@
           "message": "`W`는 글자 옵션이므로 따옴표가 필요하다. `'W'`처럼 써보자."
         }
       ],
-      "successMessage": "숫자 1 버튼이 화면에 나타날 위치를 얻었습니다."
+      "successMessage": "숫자 1 버튼이 화면에 나타날 위치를 얻었습니다.",
+      "mascot": "고드래곤_01.jpg",
+      "mascotSpeech": "sticky='W'에서 W는 West(서쪽)! 즉 왼쪽 정렬이야. 동서남북(N/S/E/W)으로 방향을 정해줄 수 있어~"
     },
     {
       "id": "L1-08",
@@ -236,7 +250,9 @@
           "message": "`button1`을 다시 사용하면 1 버튼의 이름을 덮어쓸 수 있다. 이번에는 `button2`라는 새 이름을 쓰자."
         }
       ],
-      "successMessage": "패턴을 읽기 시작했어요. 버튼을 하나 더 만들었습니다."
+      "successMessage": "패턴을 읽기 시작했어요. 버튼을 하나 더 만들었습니다.",
+      "mascot": "고드래곤_07.gif",
+      "mascotSpeech": "패턴이 보이지? button1이랑 거의 똑같은데 이름이랑 글자만 달라! 이게 프로그래밍의 재미야~"
     },
     {
       "id": "L1-09",
@@ -257,7 +273,9 @@
           "message": "지금 배치해야 하는 것은 `button2`다. 변수 이름을 확인해보자."
         }
       ],
-      "successMessage": "숫자 2 버튼도 자리를 잡았습니다."
+      "successMessage": "숫자 2 버튼도 자리를 잡았습니다.",
+      "mascot": "고드래곤_01.jpg",
+      "mascotSpeech": "row 숫자만 하나씩 올리면 아래로 내려가! 0→1→2→3 순서로 쭉쭉~ 간단하지?"
     },
     {
       "id": "L1-10",
@@ -278,7 +296,9 @@
           "message": "복사해서 고칠 때 자주 나는 실수다. 변수 이름은 `button3`, 버튼 글자도 `\"3\"`이어야 한다."
         }
       ],
-      "successMessage": "좋아요. 이제 세 번째 버튼까지 만들었습니다."
+      "successMessage": "좋아요. 이제 세 번째 버튼까지 만들었습니다.",
+      "mascot": "고드래곤_07.gif",
+      "mascotSpeech": "세 번째 버튼! 이제 패턴이 손에 익었지? 나중에 버튼이 20개여도 거뜬히 만들 수 있어!"
     },
     {
       "id": "L1-11",
@@ -299,7 +319,9 @@
           "message": "숫자 2 버튼과 같은 줄에 놓이면 겹치거나 의도와 달라질 수 있다. 숫자 3 버튼은 `row=3`에 둔다."
         }
       ],
-      "successMessage": "세 개의 숫자 버튼이 세로로 배치됩니다."
+      "successMessage": "세 개의 숫자 버튼이 세로로 배치됩니다.",
+      "mascot": "고드래곤_01.jpg",
+      "mascotSpeech": "row=3으로 네 번째 줄에 딱! 0, 1, 2, 3... 0부터 세는 거 잊지 마. 이제 버튼 배치는 완전 마스터야~"
     },
     {
       "id": "L1-12",
@@ -326,6 +348,8 @@
         }
       ],
       "successMessage": "Lesson 1 완성! 이제 입력창과 숫자 버튼 1, 2, 3이 있는 계산기 창을 만들 수 있어요.",
+      "mascot": "고드래곤_07.gif",
+      "mascotSpeech": "mainloop()이 없으면 창이 바로 꺼져버려! 이 한 줄이 '계속 켜있어, 클릭 기다려'라는 마법이야. 드디어 마지막 단계!",
       "completionBadges": ["첫 창 완성", "Lesson 1 완성자"]
     }
   ],

@@ -22,11 +22,13 @@ try:
     ]
     if _roots and "mainloop()" not in __USER_CODE__:
         _root = _roots[0]
-        _root.after(3500, _root.destroy)
         _root.mainloop()
 except Exception:
     raise
 '''
+
+
+_current_proc = None
 
 
 class PrototypeHandler(SimpleHTTPRequestHandler):
@@ -38,9 +40,16 @@ class PrototypeHandler(SimpleHTTPRequestHandler):
         super().end_headers()
 
     def do_POST(self):
-        if self.path != "/run":
+        if self.path == "/run":
+            self._handle_run()
+        elif self.path == "/stop":
+            self._handle_stop()
+        else:
             self.send_error(404)
-            return
+
+    def _handle_run(self):
+        global _current_proc
+        self._kill_current_proc()
 
         content_length = int(self.headers.get("Content-Length", "0"))
         raw_body = self.rfile.read(content_length)
@@ -58,7 +67,7 @@ class PrototypeHandler(SimpleHTTPRequestHandler):
         script_path = self._write_script(user_code)
 
         try:
-            subprocess.Popen(
+            _current_proc = subprocess.Popen(
                 [sys.executable, str(script_path)],
                 cwd=str(ROOT),
             )
@@ -73,6 +82,20 @@ class PrototypeHandler(SimpleHTTPRequestHandler):
             "ok": True,
             "message": "Python 프로그램을 실행했어요."
         })
+
+    def _handle_stop(self):
+        self._kill_current_proc()
+        self._send_json(200, {"ok": True, "message": "창을 닫았어요."})
+
+    def _kill_current_proc(self):
+        global _current_proc
+        if _current_proc and _current_proc.poll() is None:
+            _current_proc.terminate()
+            try:
+                _current_proc.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                _current_proc.kill()
+        _current_proc = None
 
     def _write_script(self, user_code):
         temp_dir = Path(tempfile.gettempdir()) / "calculator_learning_runs"
