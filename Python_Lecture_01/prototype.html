@@ -68,6 +68,15 @@
         <pre id="codeGhost" aria-hidden="true"></pre>
         <textarea id="codeInput" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
       </div>
+
+      <div class="console-wrap" id="consoleWrap" data-state="idle">
+        <div class="console-head">
+          <span>실행 출력</span>
+          <button type="button" id="consoleClearBtn" aria-label="닫기">✕</button>
+        </div>
+        <pre id="consoleOutput"></pre>
+      </div>
+
       <div class="actions">
         <button type="button" id="runBtn">실행</button>
         <button type="button" id="hintBtn">힌트</button>
@@ -85,6 +94,32 @@
       </div>
     </section>
   </main>
+
+  <div class="login" id="loginModal">
+    <div class="login-card">
+      <div id="loginScreen">
+        <p class="eyebrow">Lesson 1</p>
+        <h2>코드로 계산기 만들기</h2>
+        <p class="login-desc">이름과 이메일을 입력하면 진행 상황이 저장됩니다.</p>
+        <div class="login-form">
+          <label for="inputName">이름</label>
+          <input type="text" id="inputName" placeholder="홍길동" autocomplete="name">
+          <label for="inputEmail">이메일</label>
+          <input type="email" id="inputEmail" placeholder="hong@example.com" autocomplete="email">
+          <button type="button" id="loginBtn">시작하기</button>
+        </div>
+      </div>
+      <div id="resumeScreen" hidden>
+        <p class="eyebrow">돌아오셨군요!</p>
+        <h2 id="resumeGreet"></h2>
+        <p id="resumeDesc"></p>
+        <div class="resume-actions">
+          <button type="button" id="resumeBtn">이어서 하기</button>
+          <button type="button" id="restartBtn">처음부터 하기</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="completion" id="completionModal" hidden>
     <div class="completion-card">

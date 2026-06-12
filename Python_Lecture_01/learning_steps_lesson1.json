@@ -8,7 +8,11 @@
     "estimatedMinutes": 25
   },
   "gameRules": {
-    "successStreakMilestones": [3, 5, 10],
+    "successStreakMilestones": [
+      3,
+      5,
+      10
+    ],
     "typoBadgeMilestones": [
       {
         "count": 5,
@@ -38,7 +42,12 @@
     {
       "id": "L1-01",
       "title": "Tkinter 가져오기",
-      "concepts": ["import", "library", "module", "alias"],
+      "concepts": [
+        "import",
+        "library",
+        "module",
+        "alias"
+      ],
       "explanation": "Python에는 처음부터 모든 기능이 한꺼번에 켜져 있지 않다. 대신 필요한 기능을 담아둔 수많은 도구 묶음이 있고, 우리는 그중 필요한 것을 골라 가져와서 사용한다. 이런 도구를 설명할 때 `library`, `module`, `package` 같은 말을 자주 만난다.\n\n`module`은 가장 단순하게 말하면 Python 코드가 들어 있는 파일 하나라고 생각하면 된다. 예를 들어 `hello.py`라는 파일을 만들었다면, 그 파일도 하나의 모듈이 될 수 있다. 모듈 안에는 함수, 변수, 클래스 같은 여러 코드 조각이 들어갈 수 있고, 다른 Python 파일에서 `import hello`처럼 가져와 사용할 수 있다.\n\n`library`는 보통 어떤 목적을 위해 여러 기능을 모아둔 더 큰 도구 모음을 뜻한다. 예를 들어 화면을 만들기 위한 도구 모음, 수학 계산을 위한 도구 모음, 엑셀 파일을 다루기 위한 도구 모음처럼 생각할 수 있다. 라이브러리 안에는 하나의 모듈만 있을 수도 있고, 여러 모듈과 패키지가 함께 들어 있을 수도 있다.\n\n그래서 차이를 아주 짧게 말하면, `module`은 Python이 직접 가져올 수 있는 코드 단위에 가깝고, `library`는 특정 목적을 위해 모아둔 도구 모음에 가깝다. 다만 실제 대화에서는 두 말을 엄격하게 구분하지 않고 '필요한 기능을 담은 도구'라는 뜻으로 섞어 쓰는 경우도 많다. 처음에는 `module은 파일 또는 코드 단위`, `library는 기능 묶음 또는 도구상자`라고 기억하면 충분하다.\n\n`tkinter`도 그런 수많은 도구 중 하나다. 계산기처럼 창이 뜨고, 버튼이 있고, 입력창이 있는 프로그램을 만들려면 화면을 다루는 도구가 필요하다. `tkinter`는 Python에 기본으로 포함된 GUI 도구라서 따로 설치하지 않아도 바로 사용할 수 있다. GUI는 Graphical User Interface의 줄임말로, 글자 명령어만 입력하는 프로그램이 아니라 창, 버튼, 메뉴처럼 눈에 보이는 화면으로 조작하는 방식을 뜻한다.\n\n하지만 `tkinter`가 Python에 포함되어 있다고 해서 코드에서 자동으로 바로 쓸 수 있는 것은 아니다. Python에게 '이번 프로그램에서는 tkinter 도구를 사용할 거야'라고 알려줘야 한다. 그때 사용하는 명령어가 `import`다. `import tkinter`라고 쓰면 Python은 tkinter 도구를 찾아서 현재 코드에서 사용할 수 있게 준비한다.\n\n마지막의 `as tk`는 별명을 붙이는 부분이다. `tkinter.Button`, `tkinter.Entry`, `tkinter.Tk`처럼 매번 긴 이름을 쓰면 코드가 길어진다. 그래서 `import tkinter as tk`라고 쓰면 앞으로 `tkinter`를 짧게 `tk`라고 부를 수 있다. 그러면 `tk.Button`, `tk.Entry`, `tk.Tk`처럼 간단하게 쓸 수 있다.\n\n프로그래밍을 배울 때 중요한 습관 중 하나는 '이 도구에 어떤 기능이 있는지 어디서 확인할 수 있을까?'를 아는 것이다. Tkinter에 대해 더 알고 싶을 때는 Python 공식 문서의 Tkinter Documentation을 보면 된다. 검색창에 `Python tkinter documentation` 또는 `tkinter Python docs`라고 검색하면 보통 Python 공식 문서가 가장 위쪽에 나온다. 공식 문서 주소는 `https://docs.python.org/3/library/tkinter.html`이다. 처음부터 모든 내용을 이해할 필요는 없다. 지금은 '공식 문서라는 설명서가 있고, 모르는 기능이 나오면 찾아볼 수 있다'는 감각을 갖는 것이 목표다.",
       "mission": "Tkinter를 tk라는 이름으로 가져오는 코드를 입력한다.",
       "expectedCode": "import tkinter as tk",
@@ -71,7 +80,11 @@
     {
       "id": "L1-02",
       "title": "메인 창 만들기",
-      "concepts": ["object", "function call", "variable"],
+      "concepts": [
+        "object",
+        "function call",
+        "variable"
+      ],
       "explanation": "이제 Tkinter 도구를 가져왔으니, 실제로 화면에 나타날 창을 만들 차례다. `tk.Tk()`는 Tkinter에게 '프로그램의 가장 기본이 되는 창을 하나 만들어줘'라고 요청하는 코드다. 계산기 프로그램에서는 이 창이 모든 버튼과 입력창을 담는 바탕이 된다.\n\n여기서 중요한 점은 우리가 창의 모든 기능을 직접 만드는 것이 아니라는 점이다. `tk.Tk()`를 실행하면 Tkinter가 이미 준비해둔 기본 창이 만들어진다. 이 창은 제목 표시줄을 가지고 있고, 운영체제가 제공하는 닫기, 최소화, 최대화, 이동 같은 기본 기능도 함께 갖고 있다. 우리는 그 복잡한 기능을 하나하나 직접 구현하지 않고, `tk.Tk()`라는 함수를 호출해서 기본 기능이 갖춰진 창을 얻는다. 이것이 라이브러리를 사용하는 큰 이유다.\n\n여기서 `tk`는 앞 단계에서 `import tkinter as tk`라고 별명을 붙였기 때문에 사용할 수 있는 이름이다. `Tk`는 Tkinter 안에 들어 있는 대표 기능 중 하나로, 새 GUI 프로그램의 메인 창을 만든다. `tk.Tk`까지만 쓰면 'Tk라는 기능을 가리키는 것'에 가깝고, 뒤에 괄호 `()`를 붙여 `tk.Tk()`라고 써야 실제로 그 기능을 실행해서 창을 만든다. 프로그래밍에서는 이렇게 괄호를 붙여 기능을 실행하는 일을 보통 '호출한다'고 말한다.\n\n`main_win = tk.Tk()`에서 왼쪽의 `main_win`은 변수 이름이다. 변수는 어떤 값을 나중에 다시 사용하기 위해 붙여두는 이름표라고 생각하면 된다. 오른쪽의 `tk.Tk()`가 새 창을 만들고, 왼쪽의 `main_win`이 그 창을 가리키는 이름표가 된다.\n\n이 이름표가 필요한 이유는 바로 다음 단계부터 이 창을 계속 다뤄야 하기 때문이다. 창 제목을 바꿀 때도 `main_win.title(...)`처럼 쓰고, 입력창이나 버튼을 이 창 안에 넣을 때도 `tk.Entry(main_win, ...)`, `tk.Button(main_win, ...)`처럼 `main_win`을 사용한다. 즉 `main_win`은 '내 계산기 프로그램의 메인 창'을 계속 부르기 위한 이름이다.\n\n여기서 만들어진 창은 단순한 숫자나 글자가 아니라 여러 기능과 상태를 가진 대상이다. 이런 대상을 프로그래밍에서는 보통 `object`, 즉 객체라고 부른다. 창 객체는 제목을 가질 수 있고, 버튼을 담을 수 있고, 화면에 표시될 수 있다. 처음에는 객체라는 말이 낯설어도 괜찮다. 지금은 '프로그램 안에서 다룰 수 있는 하나의 물건' 정도로 이해하면 된다.",
       "mission": "메인 윈도우를 만들고 `main_win`이라는 이름에 저장한다.",
       "expectedCode": "main_win = tk.Tk()",
@@ -92,17 +105,17 @@
           "message": "`tk.Tk` 뒤에 괄호 `()`가 있어야 실제로 창을 만든다."
         }
       ],
-      "successMessage": "창을 만들 준비가 됐어요. 아직 화면이 오래 유지되지는 않지만 핵심 재료가 생겼습니다.",
+      "successMessage": "윈도우를 만들어 봤어요. 아직 기능이 구현되지는 않았지만 프로그램이 동작할 윈도우가 생겼습니다. 단 한줄만으로 확대, 축소, 이동, 닫기 까지 가능한 것은 모두 모듈을 사용했기 때문입니다.",
       "mascot": "고드래곤_07.gif",
-      "mascotSpeech": "짠! 드디어 창이 생겼어! tk.Tk()의 괄호()가 진짜로 창을 만드는 마법이야. main_win은 그 창의 이름표고~"
+      "mascotSpeech": "짠! 드디어 창이 생겼어! tk 모듈에서 Tk() 라는 함수를 호출하는 것이 창을 만드는 마법의 핵심이야. main_win은 그 창의 이름표고~"
     },
     {
       "id": "L1-03",
-      "title": "창 제목 정하기",
-      "concepts": ["method", "string"],
-      "explanation": "`title`은 창의 제목을 정하는 기능이다. 큰따옴표 안의 `CB_Calc`는 화면 위쪽 제목 표시줄에 나타날 글자다.",
-      "mission": "메인 창의 제목을 `CB_Calc`로 설정한다.",
-      "expectedCode": "main_win.title(\"CB_Calc\")",
+      "title": "창 제목·입력창 만들기",
+      "concepts": ["method", "string", "widget", "Entry", "option"],
+      "explanation": "`title()`은 창의 제목을 정하는 함수이다. 그리고 함수의 인자로 문자열을 입력받는다.'\n\n큰따옴표 안의 `계산기`라는 문자가 윈도우 위쪽에 있는 제목 표시줄에 나타난다.\n\n`Entry`는 사용자가 글자나 숫자를 입력할 수 있는 한 줄짜리 입력창이다. `width=45`는 입력창의 너비, `bg=\"light green\"`은 배경색을 뜻한다.",
+      "mission": "메인 창의 제목을 `계산기`로 설정하고, 계산 결과를 보여줄 입력창을 만든다.",
+      "expectedCode": "main_win.title(\"계산기\")\ndisplay_entry = tk.Entry(main_win, width=45, bg=\"light green\")",
       "validation": {
         "type": "single-line-exact",
         "allowTrim": true,
@@ -112,31 +125,13 @@
         {
           "pattern": "main_win.title(CB_Calc)",
           "type": "NameError",
-          "message": "`CB_Calc`는 글자이므로 따옴표로 감싸야 한다. `\"CB_Calc\"`처럼 써보자."
+          "message": "`계산기`는 글자이므로 따옴표로 감싸야 한다. `\"계산기\"`처럼 써보자."
         },
         {
           "pattern": "main_win.Title(\"CB_Calc\")",
           "type": "AttributeError",
           "message": "Python은 대소문자를 구분한다. `Title`이 아니라 `title`이다."
-        }
-      ],
-      "successMessage": "좋아요. 이제 계산기 창에 이름표가 붙었습니다.",
-      "mascot": "고드래곤_01.jpg",
-      "mascotSpeech": "이름 없는 창은 쓸쓸하잖아! title()에 원하는 이름을 넣으면 제목 표시줄에 뜨는 거야. 나도 이름이 있어서 다행이지~"
-    },
-    {
-      "id": "L1-04",
-      "title": "입력창 만들기",
-      "concepts": ["widget", "Entry", "option"],
-      "explanation": "`Entry`는 사용자가 글자나 숫자를 입력할 수 있는 한 줄짜리 입력창이다. `width=45`는 입력창의 너비, `bg=\"light green\"`은 배경색을 뜻한다.",
-      "mission": "계산 결과를 보여줄 입력창을 만든다.",
-      "expectedCode": "display_entry = tk.Entry(main_win, width=45, bg=\"light green\")",
-      "validation": {
-        "type": "single-line-exact",
-        "allowTrim": true,
-        "allowExtraBlankLines": true
-      },
-      "commonErrors": [
+        },
         {
           "pattern": "display_entry = Entry(main_win, width=45, bg=\"light green\")",
           "type": "NameError",
@@ -148,14 +143,19 @@
           "message": "색 이름은 글자 데이터다. `\"light green\"`처럼 따옴표로 감싸야 한다."
         }
       ],
-      "successMessage": "입력창 재료가 만들어졌어요. 다음 단계에서 화면에 배치해봅시다.",
+      "successMessage": "좋아요. 창 이름을 붙이고 입력창도 만들었어요.",
       "mascot": "고드래곤_08.png",
       "mascotSpeech": "옵션이 많아 보여도 겁먹지 마! width=45는 입력창 너비, bg=\"light green\"은 배경색. 괄호 안을 천천히 읽으면 다 보여~"
     },
     {
-      "id": "L1-05",
+      "id": "L1-04",
       "title": "입력창 배치하기",
-      "concepts": ["layout", "grid", "row", "column"],
+      "concepts": [
+        "layout",
+        "grid",
+        "row",
+        "column"
+      ],
       "explanation": "`grid`는 화면을 표처럼 나누고, 원하는 줄과 칸에 위젯을 놓는 배치 방법이다. `row=0, column=0`은 첫 번째 줄, 첫 번째 칸에 놓는다는 뜻이다.",
       "mission": "입력창을 첫 번째 줄 첫 번째 칸에 배치한다.",
       "expectedCode": "display_entry.grid(row=0, column=0)",
@@ -181,9 +181,13 @@
       "mascotSpeech": "grid는 엑셀 표를 생각해봐! row는 가로줄 번호, column은 세로칸 번호야. row=0, column=0이면 맨 왼쪽 위 칸!"
     },
     {
-      "id": "L1-06",
+      "id": "L1-05",
       "title": "숫자 1 버튼 만들기",
-      "concepts": ["Button", "text", "option"],
+      "concepts": [
+        "Button",
+        "text",
+        "option"
+      ],
       "explanation": "`Button`은 클릭할 수 있는 버튼을 만든다. `text=\"1\"`은 버튼 위에 보일 글자이고, `width=5`는 버튼의 너비다.",
       "mission": "숫자 1 버튼을 만든다.",
       "expectedCode": "button1 = tk.Button(main_win, text=\"1\", width=5)",
@@ -209,9 +213,12 @@
       "mascotSpeech": "버튼이야! 드디어 누를 게 생겼어! text는 버튼에 적힐 글자, width는 버튼 크기. 이 패턴 잘 기억해둬~"
     },
     {
-      "id": "L1-07",
+      "id": "L1-06",
       "title": "숫자 1 버튼 배치하기",
-      "concepts": ["grid", "sticky"],
+      "concepts": [
+        "grid",
+        "sticky"
+      ],
       "explanation": "`sticky='W'`는 위젯을 칸 안에서 서쪽, 즉 왼쪽으로 붙이라는 뜻이다. 여기서는 버튼을 왼쪽에 맞춰 배치한다.",
       "mission": "숫자 1 버튼을 두 번째 줄 첫 번째 칸에 왼쪽 정렬로 배치한다.",
       "expectedCode": "button1.grid(row=1, column=0, sticky='W')",
@@ -232,9 +239,12 @@
       "mascotSpeech": "sticky='W'에서 W는 West(서쪽)! 즉 왼쪽 정렬이야. 동서남북(N/S/E/W)으로 방향을 정해줄 수 있어~"
     },
     {
-      "id": "L1-08",
+      "id": "L1-07",
       "title": "숫자 2 버튼 만들기",
-      "concepts": ["repetitionPattern", "variableName"],
+      "concepts": [
+        "repetitionPattern",
+        "variableName"
+      ],
       "explanation": "숫자 1 버튼과 거의 같은 방식으로 숫자 2 버튼을 만든다. 달라지는 부분은 변수 이름 `button2`와 버튼 글자 `\"2\"`다.",
       "mission": "숫자 2 버튼을 만든다.",
       "expectedCode": "button2 = tk.Button(main_win, text=\"2\", width=5)",
@@ -255,9 +265,12 @@
       "mascotSpeech": "패턴이 보이지? button1이랑 거의 똑같은데 이름이랑 글자만 달라! 이게 프로그래밍의 재미야~"
     },
     {
-      "id": "L1-09",
+      "id": "L1-08",
       "title": "숫자 2 버튼 배치하기",
-      "concepts": ["row", "layoutPattern"],
+      "concepts": [
+        "row",
+        "layoutPattern"
+      ],
       "explanation": "숫자 2 버튼은 숫자 1 버튼 아래에 놓는다. 그래서 `row` 값이 2가 된다.",
       "mission": "숫자 2 버튼을 세 번째 줄 첫 번째 칸에 왼쪽 정렬로 배치한다.",
       "expectedCode": "button2.grid(row=2, column=0, sticky='W')",
@@ -278,9 +291,11 @@
       "mascotSpeech": "row 숫자만 하나씩 올리면 아래로 내려가! 0→1→2→3 순서로 쭉쭉~ 간단하지?"
     },
     {
-      "id": "L1-10",
+      "id": "L1-09",
       "title": "숫자 3 버튼 만들기",
-      "concepts": ["patternPractice"],
+      "concepts": [
+        "patternPractice"
+      ],
       "explanation": "이번에는 같은 패턴으로 숫자 3 버튼을 만든다. 반복되는 구조를 알아차리는 것이 프로그래밍에서 아주 중요하다.",
       "mission": "숫자 3 버튼을 만든다.",
       "expectedCode": "button3 = tk.Button(main_win, text=\"3\", width=5)",
@@ -301,9 +316,12 @@
       "mascotSpeech": "세 번째 버튼! 이제 패턴이 손에 익었지? 나중에 버튼이 20개여도 거뜬히 만들 수 있어!"
     },
     {
-      "id": "L1-11",
+      "id": "L1-10",
       "title": "숫자 3 버튼 배치하기",
-      "concepts": ["row", "layoutPattern"],
+      "concepts": [
+        "row",
+        "layoutPattern"
+      ],
       "explanation": "숫자 3 버튼은 숫자 2 버튼 아래에 놓는다. 그래서 `row=3`을 사용한다.",
       "mission": "숫자 3 버튼을 네 번째 줄 첫 번째 칸에 왼쪽 정렬로 배치한다.",
       "expectedCode": "button3.grid(row=3, column=0, sticky='W')",
@@ -324,9 +342,12 @@
       "mascotSpeech": "row=3으로 네 번째 줄에 딱! 0, 1, 2, 3... 0부터 세는 거 잊지 마. 이제 버튼 배치는 완전 마스터야~"
     },
     {
-      "id": "L1-12",
+      "id": "L1-11",
       "title": "창 계속 띄우기",
-      "concepts": ["eventLoop", "mainloop"],
+      "concepts": [
+        "eventLoop",
+        "mainloop"
+      ],
       "explanation": "`mainloop()`는 창을 계속 화면에 띄워두고, 사용자의 클릭이나 키보드 입력을 기다리는 역할을 한다. Tkinter 프로그램의 마지막에는 보통 이 코드가 필요하다.",
       "mission": "메인 윈도우가 계속 실행되도록 mainloop를 호출한다.",
       "expectedCode": "main_win.mainloop()",
@@ -350,7 +371,10 @@
       "successMessage": "Lesson 1 완성! 이제 입력창과 숫자 버튼 1, 2, 3이 있는 계산기 창을 만들 수 있어요.",
       "mascot": "고드래곤_07.gif",
       "mascotSpeech": "mainloop()이 없으면 창이 바로 꺼져버려! 이 한 줄이 '계속 켜있어, 클릭 기다려'라는 마법이야. 드디어 마지막 단계!",
-      "completionBadges": ["첫 창 완성", "Lesson 1 완성자"]
+      "completionBadges": [
+        "첫 창 완성",
+        "Lesson 1 완성자"
+      ]
     }
   ],
   "lessonCompletion": {

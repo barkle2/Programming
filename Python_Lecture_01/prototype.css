@@ -310,7 +310,7 @@ code {
   margin: 0;
   padding: 14px;
   color: #738094;
-  font: 15px/1.55 Consolas, "Cascadia Mono", monospace;
+  font: 16px/1.55 Consolas, "Cascadia Mono", monospace;
   white-space: pre-wrap;
   word-break: break-word;
   pointer-events: none;
@@ -332,7 +332,7 @@ textarea {
   resize: vertical;
   background: transparent;
   color: #e5eef8;
-  font: 15px/1.55 Consolas, "Cascadia Mono", monospace;
+  font: 16px/1.55 Consolas, "Cascadia Mono", monospace;
 }
 
 textarea:focus {
@@ -355,6 +355,8 @@ button:hover:not(:disabled) {
 }
 
 button:disabled {
+  border-color: var(--line);
+  background: #e5e7eb;
   color: #98a2b3;
   cursor: not-allowed;
 }
@@ -371,6 +373,12 @@ button:disabled {
 #nextBtn:hover,
 #closeCompletionBtn:hover {
   background: var(--accent-dark);
+}
+
+#nextBtn:disabled {
+  border-color: var(--line);
+  background: #e5e7eb;
+  color: #98a2b3;
 }
 
 .actions {
@@ -403,9 +411,75 @@ button:disabled {
 
 .result p {
   margin-bottom: 0;
+  font-size: 16px;
   line-height: 1.55;
   color: var(--muted);
 }
+
+.console-wrap {
+  margin-top: 10px;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  background: #0d1117;
+  overflow: hidden;
+}
+
+.console-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 14px;
+  background: #161b22;
+  border-bottom: 1px solid #334155;
+}
+
+.console-head span {
+  font-size: 11px;
+  font-weight: 700;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.console-head button {
+  min-height: auto;
+  padding: 2px 7px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #8b949e;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.console-head button:hover:not(:disabled) {
+  border-color: transparent;
+  background: #30363d;
+  color: #e6edf3;
+}
+
+#consoleOutput {
+  margin: 0;
+  padding: 10px 14px;
+  min-height: 44px;
+  max-height: 160px;
+  overflow-y: auto;
+  color: #e6edf3;
+  font: 16px/1.55 Consolas, "Cascadia Mono", monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.console-wrap[data-state="idle"] #consoleOutput::before {
+  content: "실행하면 결과가 여기 표시됩니다";
+  color: #4d5966;
+}
+
+.console-wrap[data-state="error"] #consoleOutput {
+  color: #ff7b72;
+}
+
 
 .badge-box {
   margin-top: 18px;
@@ -423,6 +497,96 @@ button:disabled {
 .badges span {
   background: #fff3c4;
   color: #7a4d00;
+}
+
+.login[hidden] {
+  display: none;
+}
+
+.login {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(6px);
+  z-index: 100;
+}
+
+.login-card {
+  width: min(440px, 100%);
+  padding: 32px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.24);
+}
+
+.login-card h2 {
+  margin-bottom: 8px;
+}
+
+.login-desc {
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login-form label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.login-form input {
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--ink);
+  outline: none;
+}
+
+.login-form input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+}
+
+.login-form button {
+  margin-top: 8px;
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+  font-size: 15px;
+}
+
+.login-form button:hover {
+  background: var(--accent-dark);
+}
+
+.resume-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.resume-actions button:first-child {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.resume-actions button:first-child:hover {
+  background: var(--accent-dark);
 }
 
 .completion {

@@ -70,6 +70,8 @@ class PrototypeHandler(SimpleHTTPRequestHandler):
             _current_proc = subprocess.Popen(
                 [sys.executable, str(script_path)],
                 cwd=str(ROOT),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
             )
         except Exception as exc:
             self._send_json(500, {
@@ -78,10 +80,25 @@ class PrototypeHandler(SimpleHTTPRequestHandler):
             })
             return
 
-        self._send_json(200, {
-            "ok": True,
-            "message": "Python 프로그램을 실행했어요."
-        })
+        try:
+            stdout, stderr = _current_proc.communicate(timeout=2)
+            if _current_proc.returncode != 0:
+                self._send_json(200, {
+                    "ok": False,
+                    "message": "Python 실행 중 오류가 발생했어요.",
+                    "stderr": stderr.decode("utf-8", errors="replace").strip()
+                })
+            else:
+                self._send_json(200, {
+                    "ok": True,
+                    "message": "Python 프로그램을 실행했어요.",
+                    "stdout": stdout.decode("utf-8", errors="replace").strip()
+                })
+        except subprocess.TimeoutExpired:
+            self._send_json(200, {
+                "ok": True,
+                "message": "Python 프로그램을 실행했어요."
+            })
 
     def _handle_stop(self):
         self._kill_current_proc()
@@ -95,6 +112,17 @@ class PrototypeHandler(SimpleHTTPRequestHandler):
                 _current_proc.wait(timeout=2)
             except subprocess.TimeoutExpired:
                 _current_proc.kill()
+                try:
+                    _current_proc.wait(timeout=1)
+                except subprocess.TimeoutExpired:
+                    pass
+        if _current_proc:
+            for pipe in (_current_proc.stdout, _current_proc.stderr):
+                if pipe:
+                    try:
+                        pipe.close()
+                    except Exception:
+                        pass
         _current_proc = None
 
     def _write_script(self, user_code):

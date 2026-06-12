@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>강의 편집기</title>
+  <link rel="stylesheet" href="prototype.css">
+  <link rel="stylesheet" href="editor.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Editor</p>
+      <h1>강의 편집기</h1>
+    </div>
+    <div class="editor-header-actions">
+      <span id="saveStatus"></span>
+      <a href="prototype.html" class="back-link">← 학습 앱</a>
+      <button type="button" id="saveBtn">저장</button>
+    </div>
+  </header>
+
+  <main class="editor-shell">
+    <aside class="editor-nav">
+      <div class="panel-head">
+        <h2>단계 목록</h2>
+        <button type="button" id="addStepBtn">+ 추가</button>
+      </div>
+
+      <div class="lesson-meta-fields">
+        <label>강의 제목
+          <input type="text" id="fCourseTitle">
+        </label>
+        <label>학습 목표
+          <textarea id="fLessonGoal" rows="2"></textarea>
+        </label>
+      </div>
+
+      <ol id="stepList"></ol>
+    </aside>
+
+    <section class="editor-form-panel" id="editorPanel">
+      <div class="empty-state">단계를 선택하면 여기서 편집할 수 있어요.</div>
+
+      <form id="stepForm" hidden>
+        <div class="form-topbar">
+          <h2 id="formStepId"></h2>
+          <button type="button" id="deleteStepBtn" class="danger-btn">단계 삭제</button>
+        </div>
+
+        <div class="form-section">
+          <h3>기본 정보</h3>
+          <label>ID
+            <input type="text" id="fId">
+          </label>
+          <label>제목
+            <input type="text" id="fTitle">
+          </label>
+          <label>개념 태그 <span class="field-hint">쉼표로 구분</span>
+            <input type="text" id="fConcepts" placeholder="import, module, alias">
+          </label>
+        </div>
+
+        <div class="form-section">
+          <h3>학습 내용</h3>
+          <label>설명
+            <textarea id="fExplanation" class="auto-resize" rows="5"></textarea>
+          </label>
+          <label>미션
+            <textarea id="fMission" class="auto-resize" rows="2"></textarea>
+          </label>
+        </div>
+
+        <div class="form-section">
+          <h3>코드</h3>
+          <label>정답 코드
+            <textarea id="fExpectedCode" class="code-textarea auto-resize" rows="2" spellcheck="false"></textarea>
+          </label>
+        </div>
+
+        <div class="form-section">
+          <h3>피드백</h3>
+          <label>성공 메시지
+            <input type="text" id="fSuccessMessage">
+          </label>
+          <div class="mascot-row">
+            <label class="mascot-select-label">마스코트
+              <select id="fMascot">
+                <option value="">없음</option>
+                <option>고드래곤_01.jpg</option>
+                <option>고드래곤_02.jpg</option>
+                <option>고드래곤_03.png</option>
+                <option>고드래곤_04.jpg</option>
+                <option>고드래곤_05.jpg</option>
+                <option>고드래곤_06.png</option>
+                <option>고드래곤_07.gif</option>
+                <option>고드래곤_08.png</option>
+                <option>고드래곤_09.png</option>
+                <option>고드래곤_10.jpg</option>
+              </select>
+            </label>
+            <img id="mascotPreview" src="" alt="" class="mascot-preview">
+          </div>
+          <label>마스코트 대사
+            <textarea id="fMascotSpeech" class="auto-resize" rows="2"></textarea>
+          </label>
+          <label>완료 배지 <span class="field-hint">쉼표로 구분 (선택)</span>
+            <input type="text" id="fCompletionBadges" placeholder="첫 창 완성, Lesson 1 완성자">
+          </label>
+        </div>
+
+        <div class="form-section">
+          <div class="section-head">
+            <h3>자주 하는 실수</h3>
+            <button type="button" id="addErrorBtn">+ 추가</button>
+          </div>
+          <div id="errorList"></div>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="editor.js"></script>
+</body>
+</html>

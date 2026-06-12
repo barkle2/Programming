@@ -10,7 +10,9 @@ const state = {
   bestSuccessStreak: 0,
   badges: new Set(),
   startTime: Date.now(),
-  timerId: null
+  timerId: null,
+  userName: "",
+  userEmail: ""
 };
 
 const els = {
@@ -36,20 +38,101 @@ const els = {
   resultTitle: document.querySelector("#resultTitle"),
   resultMessage: document.querySelector("#resultMessage"),
   badges: document.querySelector("#badges"),
+  consoleWrap: document.querySelector("#consoleWrap"),
+  consoleOutput: document.querySelector("#consoleOutput"),
+  consoleClearBtn: document.querySelector("#consoleClearBtn"),
   completionModal: document.querySelector("#completionModal"),
   completionSummary: document.querySelector("#completionSummary"),
-  closeCompletionBtn: document.querySelector("#closeCompletionBtn")
+  closeCompletionBtn: document.querySelector("#closeCompletionBtn"),
+  loginModal: document.querySelector("#loginModal"),
+  loginScreen: document.querySelector("#loginScreen"),
+  resumeScreen: document.querySelector("#resumeScreen"),
+  resumeGreet: document.querySelector("#resumeGreet"),
+  resumeDesc: document.querySelector("#resumeDesc"),
+  inputName: document.querySelector("#inputName"),
+  inputEmail: document.querySelector("#inputEmail"),
+  loginBtn: document.querySelector("#loginBtn"),
+  resumeBtn: document.querySelector("#resumeBtn"),
+  restartBtn: document.querySelector("#restartBtn")
 };
 
-async function init() {
+function init() {
+  els.inputName.focus();
+}
+
+async function startLesson(savedData) {
   try {
     const response = await fetch("learning_steps_lesson1.json", { cache: "no-store" });
     state.data = await response.json();
-    renderLesson();
-    renderStep(0);
-    startTimer();
-  } catch (error) {
+  } catch {
+    els.loginModal.hidden = true;
     setResult("error", "학습 데이터를 불러오지 못했어요", "로컬 서버로 prototype.html을 열어야 JSON 파일을 읽을 수 있습니다.");
+    return;
+  }
+
+  if (savedData) {
+    state.completed = new Set(savedData.completed);
+    state.currentIndex = savedData.currentIndex;
+    state.runCount = savedData.runCount ?? 0;
+    state.successCount = savedData.successCount ?? 0;
+    state.failureCount = savedData.failureCount ?? 0;
+    state.typoCount = savedData.typoCount ?? 0;
+    state.currentSuccessStreak = savedData.currentSuccessStreak ?? 0;
+    state.bestSuccessStreak = savedData.bestSuccessStreak ?? 0;
+    state.badges = new Set(savedData.badges ?? []);
+    state.startTime = Date.now() - (savedData.elapsedMs ?? 0);
+  }
+
+  renderLesson();
+  renderStep(state.currentIndex);
+  renderBadges();
+  startTimer();
+  els.loginModal.hidden = true;
+}
+
+function saveProgress() {
+  if (!state.userEmail) return;
+  const data = {
+    userName: state.userName,
+    currentIndex: state.currentIndex,
+    completed: [...state.completed],
+    runCount: state.runCount,
+    successCount: state.successCount,
+    failureCount: state.failureCount,
+    typoCount: state.typoCount,
+    currentSuccessStreak: state.currentSuccessStreak,
+    bestSuccessStreak: state.bestSuccessStreak,
+    badges: [...state.badges],
+    elapsedMs: Date.now() - state.startTime
+  };
+  localStorage.setItem(`python_lecture_1_${state.userEmail}`, JSON.stringify(data));
+}
+
+function loadProgress(email) {
+  try {
+    const raw = localStorage.getItem(`python_lecture_1_${email}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function handleLogin() {
+  const name = els.inputName.value.trim();
+  const email = els.inputEmail.value.trim();
+  if (!name || !email) return;
+
+  state.userName = name;
+  state.userEmail = email;
+
+  const saved = loadProgress(email);
+  if (saved && saved.completed && saved.completed.length > 0) {
+    els.resumeGreet.textContent = `반가워요, ${name}님!`;
+    els.resumeDesc.textContent = `${saved.completed.length}단계까지 완료했어요. 이어서 할까요?`;
+    els.loginScreen.hidden = true;
+    els.resumeScreen.hidden = false;
+  } else {
+    startLesson(null);
   }
 }
 
@@ -93,6 +176,7 @@ function renderStep(index) {
     els.mascotImg.closest(".mascot-wrap").hidden = true;
   }
   setResult("idle", "준비 완료", "설명을 읽고 코드를 직접 입력한 뒤 실행해보세요.");
+  setConsole("", "");
 
   [...els.stepList.querySelectorAll("button")].forEach((button, buttonIndex) => {
     const targetStep = state.data.steps[buttonIndex];
@@ -111,8 +195,13 @@ async function runCurrentStep() {
   const expectedCode = normalizeCodeBlock(getExpectedCodeThrough(state.currentIndex));
   state.runCount += 1;
 
-  if (userCode === expectedCode) {
-    const launchResult = await launchPython(els.codeInput.value);
+  const launchResult = await launchPython(els.codeInput.value);
+
+  if (!launchResult.ok) {
+    setResult("error", "Python 오류", launchResult.explanation || "아래 오류 내용을 살펴보세요.");
+    state.failureCount += 1;
+    state.currentSuccessStreak = 0;
+  } else if (userCode === expectedCode) {
     state.completed.add(step.id);
     state.successCount += 1;
     state.currentSuccessStreak += 1;
@@ -124,42 +213,73 @@ async function runCurrentStep() {
     if (step.completionBadges) {
       step.completionBadges.forEach((badge) => state.badges.add(badge));
     }
-    setResult("success", "실행 성공", `${step.successMessage} ${launchResult}`);
+    setResult("success", "실행 성공", `${step.successMessage} ${launchResult.message}`);
     els.nextBtn.disabled = false;
-    updateStats();
-    renderBadges();
-    renderStepListState();
+    saveProgress();
     if (state.completed.size === state.data.steps.length) {
       showCompletion();
     }
-    return;
+  } else {
+    state.failureCount += 1;
+    state.currentSuccessStreak = 0;
+    state.typoCount += looksLikeTypo(userCode, expectedCode) ? 1 : 0;
+    awardTypoBadges();
+    const matchedError = findCommonError(step, els.codeInput.value.trim());
+    const message = matchedError ? matchedError.message : buildGenericError(step);
+    setResult("error", matchedError ? matchedError.type : "다시 확인해보기", message);
   }
 
-  state.failureCount += 1;
-  state.currentSuccessStreak = 0;
-  state.typoCount += looksLikeTypo(userCode, expectedCode) ? 1 : 0;
-  awardTypoBadges();
-  const matchedError = findCommonError(step, els.codeInput.value.trim());
-  const message = matchedError ? matchedError.message : buildGenericError(step);
-  setResult("error", matchedError ? matchedError.type : "다시 확인해보기", message);
   updateStats();
   renderBadges();
+  renderStepListState();
 }
 
 async function launchPython(code) {
   try {
     const response = await fetch("/run", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code })
     });
     const result = await response.json();
-    return result.message || "Python 실행 요청을 보냈어요.";
-  } catch (error) {
-    return "현재 서버가 Python 실행 기능을 제공하지 않아요. `prototype_server.py`로 실행해야 실제 Tk 창이 열립니다.";
+    if (!result.ok && result.stderr) {
+      setConsole("error", result.stderr);
+      return { ok: false, explanation: explainPythonError(result.stderr) };
+    }
+    setConsole("output", result.stdout || "");
+    return { ok: true, message: result.message || "Python 실행 요청을 보냈어요." };
+  } catch {
+    return { ok: true, message: "현재 서버가 Python 실행 기능을 제공하지 않아요. `prototype_server.py`로 실행해야 실제 Tk 창이 열립니다." };
   }
+}
+
+function setConsole(stateName, text) {
+  els.consoleWrap.dataset.state = stateName || "idle";
+  els.consoleOutput.textContent = text || "";
+}
+
+function explainPythonError(stderr) {
+  const errorLine = stderr.trim().split('\n').at(-1);
+  const typeMatch = errorLine.match(/^(\w+Error|\w+Exception):/);
+  if (!typeMatch) return null;
+
+  const errorType = typeMatch[1];
+  const q = [...errorLine.matchAll(/'([^']+)'/g)].map((m) => m[1]);
+
+  const handlers = {
+    AttributeError:     (q) => q.length >= 2 ? `'${q[0]}'에는 '${q[1]}'라는 기능이 없어요. 이름의 대소문자가 맞는지 확인해보세요.` : `잘못된 속성 이름이에요. 대소문자를 확인해보세요.`,
+    NameError:          (q) => q[0] ? `'${q[0]}'이라는 이름을 찾을 수 없어요. 오타가 없는지, 먼저 정의했는지 확인해보세요.` : null,
+    ModuleNotFoundError:(q) => q[0] ? `'${q[0]}' 모듈을 찾을 수 없어요.` : null,
+    ImportError:        (q) => q.length >= 2 ? `'${q[1]}'에서 '${q[0]}'을 가져올 수 없어요. 이름이 올바른지 확인해보세요.` : null,
+    SyntaxError:        ()  => `문법 오류예요. 괄호·따옴표·콜론이 빠진 곳이 없는지 확인해보세요.`,
+    IndentationError:   ()  => `들여쓰기 오류예요. 줄 앞의 공백이 맞는지 확인해보세요.`,
+    TypeError:          ()  => `타입 오류예요. 변수의 종류가 올바른지 확인해보세요.`,
+    ZeroDivisionError:  ()  => `0으로 나눌 수 없어요.`,
+    FileNotFoundError:  (q) => q[0] ? `'${q[0]}' 파일을 찾을 수 없어요.` : null,
+  };
+
+  const handler = handlers[errorType];
+  return handler ? (handler(q) ?? null) : null;
 }
 
 function showHint() {
@@ -171,11 +291,13 @@ async function nextStep() {
   try { await fetch("/stop", { method: "POST" }); } catch (_) {}
   const nextIndex = Math.min(state.currentIndex + 1, state.data.steps.length - 1);
   renderStep(nextIndex);
+  saveProgress();
 }
 
 function resetStep() {
   els.codeInput.value = getPrefixBefore(state.currentIndex);
   updateCodeGhost();
+  setConsole("", "");
   setResult("idle", "다시 입력", "천천히 한 글자씩 입력해보세요. 오타가 나도 괜찮습니다.");
   els.codeInput.focus();
 }
@@ -341,6 +463,15 @@ els.runBtn.addEventListener("click", runCurrentStep);
 els.hintBtn.addEventListener("click", showHint);
 els.nextBtn.addEventListener("click", nextStep);
 els.resetStepBtn.addEventListener("click", resetStep);
+els.consoleClearBtn.addEventListener("click", () => setConsole("", ""));
+els.loginBtn.addEventListener("click", handleLogin);
+els.inputEmail.addEventListener("keydown", (e) => { if (e.key === "Enter") handleLogin(); });
+els.inputName.addEventListener("keydown", (e) => { if (e.key === "Enter") els.inputEmail.focus(); });
+els.resumeBtn.addEventListener("click", () => startLesson(loadProgress(state.userEmail)));
+els.restartBtn.addEventListener("click", () => {
+  localStorage.removeItem(`python_lecture_1_${state.userEmail}`);
+  startLesson(null);
+});
 els.closeCompletionBtn.addEventListener("click", () => {
   els.completionModal.hidden = true;
 });
