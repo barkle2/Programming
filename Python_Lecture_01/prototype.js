@@ -201,7 +201,7 @@ async function runCurrentStep() {
     setResult("error", "Python 오류", launchResult.explanation || "아래 오류 내용을 살펴보세요.");
     state.failureCount += 1;
     state.currentSuccessStreak = 0;
-  } else if (userCode === expectedCode) {
+  } else if (stepMatches(step, userCode)) {
     state.completed.add(step.id);
     state.successCount += 1;
     state.currentSuccessStreak += 1;
@@ -295,7 +295,13 @@ async function nextStep() {
 }
 
 function resetStep() {
-  els.codeInput.value = getPrefixBefore(state.currentIndex);
+  const step = getCurrentStep();
+  if (isFullProgramMode()) {
+    const prefill = computeFullProgramPrefill(state.currentIndex);
+    els.codeInput.value = prefill ? `${prefill}\n` : "";
+  } else {
+    els.codeInput.value = step.validation?.type === "standalone" ? "" : getPrefixBefore(state.currentIndex);
+  }
   updateCodeGhost();
   setConsole("", "");
   setResult("idle", "다시 입력", "천천히 한 글자씩 입력해보세요. 오타가 나도 괜찮습니다.");
@@ -319,24 +325,107 @@ function normalizeCodeBlock(code) {
     .join("\n");
 }
 
+function getBaseCode() {
+  return state.data?.lesson?.baseCode || "";
+}
+
+function buildReplaceMap(upToIndex) {
+  const map = new Map();
+  state.data.steps.slice(0, upToIndex + 1).forEach((step) => {
+    if (step.replaces) map.set(step.replaces, step);
+  });
+  return map;
+}
+
+function isFullProgramMode() {
+  return state.data?.lesson?.mode === "full-program";
+}
+
 function getExpectedCodeThrough(index) {
-  return state.data.steps
-    .slice(0, index + 1)
-    .map((step) => step.expectedCode)
-    .join("\n");
+  if (isFullProgramMode()) {
+    return state.data.steps[index].expectedCode;
+  }
+  const base = getBaseCode();
+  const replaceMap = buildReplaceMap(index);
+  const stepCodes = [];
+  state.data.steps.slice(0, index + 1).forEach((step) => {
+    if (step.validation?.type === "standalone") return;
+    if (step.replaces) return;
+    const replacement = replaceMap.get(step.id);
+    stepCodes.push(replacement ? replacement.expectedCode : step.expectedCode);
+  });
+  return [base, ...stepCodes].filter(Boolean).join("\n");
 }
 
 function getPrefixBefore(index) {
-  const prefix = state.data.steps
-    .slice(0, index)
-    .filter((step) => state.completed.has(step.id))
-    .map((step) => step.expectedCode)
-    .join("\n");
+  if (isFullProgramMode()) return "";
+  const base = getBaseCode();
+  const currentStep = state.data.steps[index];
+  const replaceMap = buildReplaceMap(index - 1);
+  const stepCodes = [];
+  state.data.steps.slice(0, index).forEach((step) => {
+    if (!state.completed.has(step.id)) return;
+    if (step.validation?.type === "standalone") return;
+    if (step.replaces) return;
+    if (currentStep.replaces && step.id === currentStep.replaces) return;
+    const replacement = replaceMap.get(step.id);
+    stepCodes.push(replacement ? replacement.expectedCode : step.expectedCode);
+  });
+  const prefix = [base, ...stepCodes].filter(Boolean).join("\n");
   return prefix ? `${prefix}\n` : "";
 }
 
+function getPrevStepCode(index) {
+  if (index <= 0) return "";
+  return state.data.steps[index - 1].expectedCode;
+}
+
+// Returns expectedCode with new lines replaced by blank lines,
+// so the editor pre-fill has the same line count as expectedCode.
+function computeFullProgramPrefill(index) {
+  if (index <= 0) return "";
+  const prevCode = state.data.steps[index - 1].expectedCode;
+  const expectedCode = state.data.steps[index].expectedCode;
+  const prevLineSet = new Set(
+    prevCode.split("\n").map((l) => l.trim()).filter(Boolean)
+  );
+  return expectedCode
+    .split("\n")
+    .map((line) => (prevLineSet.has(line.trim()) ? line : ""))
+    .join("\n");
+}
+
+// Returns ghost HTML: ghost-prefix spans for existing lines, plain text for new lines.
+function buildFullProgramGhostHtml(index) {
+  const prevCode = index > 0 ? state.data.steps[index - 1].expectedCode : "";
+  const expectedCode = state.data.steps[index].expectedCode;
+  const prevLineSet = new Set(
+    prevCode.split("\n").map((l) => l.trim()).filter(Boolean)
+  );
+  return expectedCode
+    .split("\n")
+    .map((line) => {
+      const isExisting = !line.trim() || prevLineSet.has(line.trim());
+      return isExisting
+        ? `<span class="ghost-prefix">${escapeHtml(line)}</span>`
+        : escapeHtml(line);
+    })
+    .join("\n");
+}
+
 function getCodeForEditor(index) {
-  if (state.completed.has(state.data.steps[index].id)) {
+  const step = state.data.steps[index];
+  if (step.validation?.type === "standalone") {
+    return state.completed.has(step.id) ? `${step.expectedCode}\n` : "";
+  }
+  if (isFullProgramMode()) {
+    if (state.completed.has(step.id)) {
+      return `${step.expectedCode}\n`;
+    }
+    const prefill = computeFullProgramPrefill(index);
+    return prefill ? `${prefill}\n` : "";
+  }
+  if (state.completed.has(step.id)) {
     return `${getExpectedCodeThrough(index)}\n`;
   }
   return getPrefixBefore(index);
@@ -344,7 +433,25 @@ function getCodeForEditor(index) {
 
 function updateCodeGhost() {
   const step = getCurrentStep();
-  const prefix = getPrefixBefore(state.currentIndex);
+
+  if (isFullProgramMode()) {
+    if (state.completed.has(step.id)) {
+      els.codeGhost.innerHTML = "";
+      return;
+    }
+    const prevCode = getPrevStepCode(state.currentIndex);
+    const editorContent = els.codeInput.value.replace(/\n$/, "");
+    const isUnmodified = normalizeCodeBlock(editorContent) === normalizeCodeBlock(prevCode);
+    if (!isUnmodified) {
+      els.codeGhost.innerHTML = "";
+      return;
+    }
+    els.codeGhost.innerHTML = buildFullProgramGhostHtml(state.currentIndex);
+    return;
+  }
+
+  const isStandalone = step.validation?.type === "standalone";
+  const prefix = isStandalone ? "" : getPrefixBefore(state.currentIndex);
   const typedCurrentPart = els.codeInput.value.startsWith(prefix)
     ? els.codeInput.value.slice(prefix.length)
     : els.codeInput.value;
@@ -355,6 +462,21 @@ function updateCodeGhost() {
   }
 
   els.codeGhost.innerHTML = `<span class="ghost-prefix">${escapeHtml(prefix)}</span>${escapeHtml(step.expectedCode)}`;
+}
+
+function stepMatches(step, userCode) {
+  if (step.validation?.type === "regex") {
+    const prefix = normalizeCodeBlock(getPrefixBefore(state.currentIndex));
+    const currentLine = prefix
+      ? (userCode.startsWith(prefix) ? userCode.slice(prefix.length).trim() : null)
+      : userCode;
+    if (currentLine === null) return false;
+    return new RegExp(step.validation.pattern).test(currentLine);
+  }
+  if (step.validation?.type === "standalone") {
+    return normalizeCodeBlock(step.expectedCode) === userCode;
+  }
+  return userCode === normalizeCodeBlock(getExpectedCodeThrough(state.currentIndex));
 }
 
 function looksLikeTypo(userCode, expectedCode) {

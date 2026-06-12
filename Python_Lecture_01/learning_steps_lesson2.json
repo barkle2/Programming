@@ -1,0 +1,501 @@
+{
+  "courseTitle": "[파이썬 강의 1] 계산기 만들기",
+  "lesson": {
+    "id": "lesson-2",
+    "title": "반복문으로 버튼 자동 배치하기",
+    "goal": "반복문과 리스트를 활용해 숫자 버튼 12개와 연산자 버튼 8개를 자동으로 배치하고, 버튼 클릭 함수를 완성해 작동하는 계산기를 만든다.",
+    "sourceFile": "Calc_Lesson2.py",
+    "estimatedMinutes": 40,
+    "baseCode": "import tkinter as tk\nmain_win = tk.Tk()\nmain_win.title(\"CB_Calc\")\ndisplay_entry = tk.Entry(main_win, width=45, bg=\"light green\")\ndisplay_entry.grid(row=0, column=0, columnspan=2)"
+  },
+  "gameRules": {
+    "successStreakMilestones": [
+      3,
+      5,
+      7
+    ],
+    "typoBadgeMilestones": [
+      {
+        "count": 5,
+        "badge": "불굴의 의지 I"
+      },
+      {
+        "count": 10,
+        "badge": "불굴의 의지 II"
+      },
+      {
+        "count": 15,
+        "badge": "불굴의 의지 III"
+      }
+    ],
+    "trackedStats": [
+      "lessonStartTime",
+      "lessonEndTime",
+      "runCount",
+      "successCount",
+      "failureCount",
+      "typoCount",
+      "currentSuccessStreak",
+      "bestSuccessStreak"
+    ]
+  },
+  "steps": [
+    {
+      "id": "L2-01",
+      "title": "반복문 익히기 - 2단 구구단",
+      "concepts": [
+        "for",
+        "range",
+        "print",
+        "loop",
+        "indent"
+      ],
+      "explanation": "반복문(for loop)은 같은 동작을 여러 번 반복할 때 사용한다. 매번 손으로 비슷한 코드를 쓰는 대신, 반복문 하나로 정해진 횟수만큼 자동으로 실행할 수 있다.\n\n`for 변수 in 반복할_대상:` 형태로 쓴다. 반복할 대상에 있는 값을 하나씩 꺼내어 변수에 넣고, 들여쓰기 블록 안의 코드를 실행한다.\n\n`range(1, 10)`은 1부터 9까지의 정수를 순서대로 만들어주는 함수다. `range(시작, 끝)`에서 끝 값은 포함되지 않는다. 따라서 `range(1, 10)`은 1, 2, 3, ..., 9를 만들어 낸다.\n\n들여쓰기(indent)는 Python에서 매우 중요하다. 반복문 아래에 들여쓴 줄은 '이 줄은 반복문 안에 있다'는 뜻이다. Python은 스페이스 4칸을 표준으로 사용한다.\n\n이번 단계는 계산기 코드와는 별개로, 반복문 개념을 익히기 위한 연습 예제다.",
+      "mission": "`range(1, 10)`을 사용해 2단 구구단을 출력하는 코드를 작성한다.\n출력 형태는 `2 x 1 = 2`, `2 x 2 = 4`, ..., `2 x 9 = 18` 이다.",
+      "expectedCode": "for i in range(1, 10):\n    print(2, 'x', i, '=', 2 * i)",
+      "validation": {
+        "type": "standalone"
+      },
+      "commonErrors": [
+        {
+          "pattern": "for i in range(1, 10)\n    print(2, 'x', i, '=', 2 * i)",
+          "type": "SyntaxError",
+          "message": "`for` 줄 끝에 콜론 `:`이 빠졌다. `for i in range(1, 10):`처럼 써야 한다."
+        },
+        {
+          "pattern": "for i in range(10):\n    print(2, 'x', i, '=', 2 * i)",
+          "type": "WrongOutput",
+          "message": "`range(10)`은 0부터 9까지다. 1부터 시작하려면 `range(1, 10)`처럼 시작 값을 명시해야 한다."
+        },
+        {
+          "pattern": "for i in range(1, 10):\nprint(2, 'x', i, '=', 2 * i)",
+          "type": "IndentationError",
+          "message": "`print` 앞에 들여쓰기가 필요하다. 스페이스 4칸을 넣어 `    print(...)`처럼 써보자."
+        }
+      ],
+      "successMessage": "반복문이 실행됐어요. 단 두 줄로 9줄의 구구단을 출력했습니다.",
+      "mascot": "고드래곤_01.jpg",
+      "mascotSpeech": "잠깐! 계산기 얘기 들어가기 전에 반복문 연습 먼저야. 왜냐고? Lesson 2에서 버튼 20개를 반복문으로 만들 거거든. 그걸 배우기 전에 `for`랑 `range` 친해져 놓는 거야. 구구단 2단, 해보자!"
+    },
+    {
+      "id": "L2-02",
+      "title": "숫자 버튼 프레임 만들기",
+      "concepts": [
+        "Frame",
+        "widget",
+        "layout",
+        "grid"
+      ],
+      "explanation": "Lesson 1에서는 버튼을 `main_win`에 직접 배치했다. 버튼이 3개일 때는 괜찮았지만, 계산기에는 숫자 버튼 12개, 연산자 버튼 8개가 필요하다. 이것들을 모두 `main_win`에 직접 놓으면 행·열 번호가 복잡해지고, 숫자 영역과 연산자 영역을 따로 관리하기도 어렵다.\n\n이 문제를 해결하는 방법이 `Frame`이다. `Frame`은 창 안에 만드는 또 하나의 빈 판이다. 숫자 버튼만을 위한 판(`num_frame`)을 따로 만들고, 그 안에서 버튼들을 배치하면 위치 관리가 훨씬 단순해진다.\n\n`tk.Frame(main_win)`은 `main_win` 안에 빈 프레임을 만드는 코드다. 프레임도 위젯이므로 만든 뒤 `.grid()`로 위치를 잡아줘야 한다.",
+      "mission": "`main_win` 안에 `num_frame`이라는 프레임을 만들고, 두 번째 줄 첫 번째 칸 왼쪽에 배치한다.",
+      "expectedCode": "num_frame = tk.Frame(main_win)\nnum_frame.grid(row=1, column=0, sticky='W')",
+      "validation": {
+        "type": "multi-line-exact",
+        "allowTrim": true,
+        "allowExtraBlankLines": true
+      },
+      "commonErrors": [
+        {
+          "pattern": "num_frame = Frame(main_win)\nnum_frame.grid(row=1, column=0, sticky='W')",
+          "type": "NameError",
+          "message": "`Frame` 앞에 `tk.`가 필요하다. `tk.Frame`처럼 써야 한다."
+        },
+        {
+          "pattern": "num_frame = tk.frame(main_win)\nnum_frame.grid(row=1, column=0, sticky='W')",
+          "type": "AttributeError",
+          "message": "Python은 대소문자를 구분한다. 소문자 `frame`이 아니라 대문자 F를 쓰는 `Frame`이다."
+        },
+        {
+          "pattern": "num_frame = tk.Frame(main_win)\nnum_frame.grid(row=1, column=1, sticky='W')",
+          "type": "LayoutMistake",
+          "message": "숫자 프레임은 첫 번째 칸(`column=0`)에 놓아야 한다. 연산자 프레임은 나중에 `column=1`에 만든다."
+        }
+      ],
+      "successMessage": "숫자 버튼을 담을 공간이 생겼어요.",
+      "mascot": "고드래곤_07.gif",
+      "mascotSpeech": "Lesson 1에서 버튼 3개 만들 때 row가 1, 2, 3으로 늘어났잖아. 이번엔 버튼이 12개야. 그걸 전부 main_win에 직접 놓으면 행 번호 계산이 엄청 복잡해질 거야. 그래서 num_frame이라는 별도 공간을 만드는 거야. 구역을 나누면 훨씬 편해지거든!"
+    },
+    {
+      "id": "L2-03",
+      "title": "숫자 버튼 목록 만들기",
+      "concepts": [
+        "list",
+        "string",
+        "index",
+        "sequence"
+      ],
+      "explanation": "`list`는 순서가 있는 값들의 묶음이다. 대괄호 `[]` 안에 값들을 쉼표로 나열하면 된다. 리스트 안의 각 값은 순서대로 0번, 1번, 2번... 번호가 붙는다. 이 번호를 인덱스(index)라고 한다.\n\n`num_list`는 버튼에 표시할 글자들을 담는다. `'7'`, `'8'`, `'9'`처럼 숫자도 따옴표로 감싼 문자열로 쓴다. 이유는 버튼에 표시할 때는 '글자'가 필요하기 때문이다.\n\n리스트를 반복문에 쓰면 `for num_text in num_list:`처럼 각 값을 차례로 꺼낼 수 있다. 나중에 이 방법으로 12개의 버튼을 자동으로 만든다.",
+      "mission": "계산기 숫자 버튼에 들어갈 텍스트 목록을 `num_list`라는 이름으로 만든다.\n순서는 `'7', '8', '9'`, `'4', '5', '6'`, `'1', '2', '3'`, `'0', '.', '='` 이다.",
+      "expectedCode": "num_list = ['7', '8', '9',\n            '4', '5', '6',\n            '1', '2', '3',\n            '0', '.', '=']",
+      "validation": {
+        "type": "multi-line-exact",
+        "allowTrim": true,
+        "allowExtraBlankLines": true
+      },
+      "commonErrors": [
+        {
+          "pattern": "num_list = [7, 8, 9, 4, 5, 6, 1, 2, 3, 0, '.', '=']",
+          "type": "AcceptedButExplain",
+          "message": "숫자 `7`로 써도 동작하지만, 버튼에 표시할 글자이므로 `'7'`처럼 문자열로 쓰는 것이 좋다."
+        },
+        {
+          "pattern": "num_list = ('7', '8', '9', '4', '5', '6', '1', '2', '3', '0', '.', '=')",
+          "type": "TypeError",
+          "message": "소괄호 `()`는 리스트가 아니라 튜플이다. 대괄호 `[]`를 사용해야 한다."
+        }
+      ],
+      "successMessage": "버튼 목록이 준비됐어요. 이제 반복문으로 한 번에 만들 수 있어요.",
+      "mascot": "고드래곤_08.png",
+      "mascotSpeech": "이게 바로 리스트야! 버튼 텍스트를 12개 변수로 따로 만들 수도 있지만, 그러면 나중에 반복문을 쓸 수가 없어. 리스트에 모아두면 반복문이 하나씩 꺼내 쓸 수 있거든. 근데 신기하지? '7'처럼 숫자도 따옴표로 감싸서 글자로 다루는 거!"
+    },
+    {
+      "id": "L2-04",
+      "title": "반복문으로 숫자 버튼 배치하기",
+      "concepts": [
+        "for",
+        "loop",
+        "Button",
+        "grid",
+        "counter variable"
+      ],
+      "explanation": "이제 `num_list`의 값을 하나씩 꺼내며 버튼을 자동으로 만들고 배치한다.\n\n`row_tmp`와 `col_tmp`는 현재 배치할 칸 위치를 기억하는 변수다. 반복이 돌 때마다 `col_tmp`에 1을 더하면서 오른쪽 칸으로 이동한다. `col_tmp`가 2보다 커지면 줄이 꽉 찬 것이므로 `col_tmp`를 0으로 초기화하고 `row_tmp`에 1을 더해 다음 줄로 내려간다.\n\n이 방법으로 한 줄에 3개씩, 총 4줄에 12개의 버튼을 자동으로 배치할 수 있다.\n\n이번 단계에서는 버튼을 화면에 배치하는 것까지만 만든다. 버튼을 눌렀을 때의 동작은 나중 단계에서 추가한다.",
+      "mission": "`row_tmp`와 `col_tmp`를 사용해 반복문으로 `num_frame` 안에 숫자 버튼 12개를 한 줄에 3개씩 배치한다.",
+      "expectedCode": "row_tmp = 0\ncol_tmp = 0\nfor num_text in num_list:\n    num_button = tk.Button(num_frame, text=num_text, width=5)\n    num_button.grid(row=row_tmp, column=col_tmp)\n    col_tmp = col_tmp + 1\n    if col_tmp > 2:\n        col_tmp = 0\n        row_tmp = row_tmp + 1",
+      "validation": {
+        "type": "multi-line-exact",
+        "allowTrim": true,
+        "allowExtraBlankLines": true
+      },
+      "commonErrors": [
+        {
+          "pattern": "for num_text in num_list:\n    num_button = tk.Button(num_frame, text=num_text, width=5)\n    num_button.grid(row=row_tmp, column=col_tmp)\n    col_tmp = col_tmp + 1\n    if col_tmp > 2:\n        col_tmp = 0\n        row_tmp = row_tmp + 1",
+          "type": "NameError",
+          "message": "`row_tmp`와 `col_tmp`를 먼저 `0`으로 초기화해야 한다. 반복문 위에 `row_tmp = 0`과 `col_tmp = 0`을 추가하자."
+        },
+        {
+          "pattern": "row_tmp = 0\ncol_tmp = 0\nfor num_text in num_list:\n    num_button = tk.Button(num_frame, text=num_text, width=5)\n    num_button.grid(row=row_tmp, column=col_tmp)\n    col_tmp = col_tmp + 1\n    if col_tmp > 3:\n        col_tmp = 0\n        row_tmp = row_tmp + 1",
+          "type": "LayoutMistake",
+          "message": "한 줄에 3개씩 배치하려면 `col_tmp > 2`일 때 줄을 바꿔야 한다. `col_tmp > 3`으로 하면 한 줄에 4개가 배치된다."
+        },
+        {
+          "pattern": "row_tmp = 0\ncol_tmp = 0\nfor num_text in num_list:\n    num_button = tk.Button(main_win, text=num_text, width=5)\n    num_button.grid(row=row_tmp, column=col_tmp)\n    col_tmp = col_tmp + 1\n    if col_tmp > 2:\n        col_tmp = 0\n        row_tmp = row_tmp + 1",
+          "type": "WrongParent",
+          "message": "버튼은 `main_win`이 아니라 `num_frame` 안에 만들어야 한다. `tk.Button(num_frame, ...)`처럼 써야 한다."
+        }
+      ],
+      "successMessage": "반복문 하나로 버튼 12개가 배치됐어요. Lesson 1의 3개짜리 버튼 방식과 비교해보세요.",
+      "mascot": "고드래곤_07.gif",
+      "mascotSpeech": "어때, 반복문 쓰니까 코드가 짧아지지? Lesson 1에서 버튼 하나에 두 줄씩, 3개 만드는 데 6줄이었는데 이번엔 12개를 만들면서도 코드 길이는 비슷해. 이게 반복문의 힘이야. col_tmp랑 row_tmp로 위치를 추적하는 부분, 꼼꼼히 읽어봐!"
+    },
+    {
+      "id": "L2-05",
+      "title": "연산자 버튼 프레임 만들기",
+      "concepts": [
+        "Frame",
+        "layout",
+        "column"
+      ],
+      "explanation": "연산자 버튼을 담을 별도의 프레임 `op_frame`을 만든다.\n\n`num_frame`은 `column=0`에 배치했고, `op_frame`은 `column=1`에 배치한다. 이렇게 두 프레임을 나란히 놓으면 계산기 왼쪽에 숫자 버튼, 오른쪽에 연산자 버튼이 배치된다.\n\n`sticky='E'`는 프레임을 칸의 오른쪽(East)에 붙이라는 뜻이다.",
+      "mission": "`main_win` 안에 `op_frame`이라는 프레임을 만들고, 두 번째 줄 두 번째 칸 오른쪽에 배치한다.",
+      "expectedCode": "op_frame = tk.Frame(main_win)\nop_frame.grid(row=1, column=1, sticky='E')",
+      "validation": {
+        "type": "multi-line-exact",
+        "allowTrim": true,
+        "allowExtraBlankLines": true
+      },
+      "commonErrors": [
+        {
+          "pattern": "op_frame = tk.Frame(main_win)\nop_frame.grid(row=1, column=0, sticky='E')",
+          "type": "LayoutMistake",
+          "message": "연산자 프레임은 숫자 프레임 오른쪽에 놓아야 한다. `column=1`을 사용해야 한다."
+        },
+        {
+          "pattern": "op_frame = tk.Frame(main_win)\nop_frame.grid(row=1, column=1, sticky='W')",
+          "type": "LayoutMistake",
+          "message": "연산자 프레임은 오른쪽(East)에 붙인다. `sticky='E'`를 사용해야 한다."
+        }
+      ],
+      "successMessage": "연산자 버튼 공간이 준비됐어요.",
+      "mascot": "고드래곤_08.png",
+      "mascotSpeech": "num_frame은 column=0에, op_frame은 column=1에! 두 프레임이 나란히 서는 거야. 그래서 display_entry에 columnspan=2를 준 거기도 해 - 두 칸을 합쳐서 꽉 채우는 거거든. 연결돼 있지?"
+    },
+    {
+      "id": "L2-06",
+      "title": "연산자 버튼 목록 만들기",
+      "concepts": [
+        "list",
+        "operator",
+        "string"
+      ],
+      "explanation": "연산자 버튼에 표시할 기호들을 리스트로 만든다.\n\n`*`(곱하기), `/`(나누기), `+`(더하기), `-`(빼기), `(`(여는 괄호), `)`(닫는 괄호), `C`(지우기), `AC`(전체 지우기) 순서로 담는다.\n\n나중에 반복문에서 한 줄에 2개씩 배치할 예정이므로, 리스트 순서를 2개씩 묶어서 보면 배치 결과를 머릿속으로 그려볼 수 있다.",
+      "mission": "계산기 연산자 버튼에 들어갈 텍스트 목록을 `op_list`라는 이름으로 만든다.",
+      "expectedCode": "op_list = ['*', '/',\n           '+', '-',\n           '(', ')',\n           'C', 'AC']",
+      "validation": {
+        "type": "multi-line-exact",
+        "allowTrim": true,
+        "allowExtraBlankLines": true
+      },
+      "commonErrors": [
+        {
+          "pattern": "op_list = ['*', '/', '+', '-', '(', ')', 'C', 'AC']",
+          "type": "Accepted",
+          "message": "한 줄로 써도 동작한다. 여러 줄로 나눠 쓰면 가독성이 좋아진다."
+        },
+        {
+          "pattern": "op_list = ['*', '/', '+', '-', '(', ')', 'c', 'ac']",
+          "type": "CaseMistake",
+          "message": "나중에 `button_click` 함수에서 `key == 'C'`와 `key == 'AC'`로 비교하므로 대문자를 써야 한다."
+        }
+      ],
+      "successMessage": "연산자 목록도 준비됐어요.",
+      "mascot": "고드래곤_01.jpg",
+      "mascotSpeech": "C는 'Clear', AC는 'All Clear'야. 이 두 개는 나중에 button_click 함수에서 특별히 처리할 거야. 그래서 대소문자 정확히 맞춰야 해. 리스트 순서도 중요해 - 한 줄에 2개씩 배치되니까 '*, /' 이렇게 2개씩 짝지어 생각해봐!"
+    },
+    {
+      "id": "L2-07",
+      "title": "반복문으로 연산자 버튼 배치하기",
+      "concepts": [
+        "for",
+        "loop",
+        "Button",
+        "grid",
+        "counter variable"
+      ],
+      "explanation": "연산자 버튼도 숫자 버튼과 같은 방식으로 반복문을 사용해 배치한다.\n\n숫자 버튼과 다른 점은 `op_frame` 안에 배치한다는 것, 그리고 한 줄에 2개씩 배치한다는 것이다. 따라서 `col_tmp > 1`일 때 다음 줄로 이동한다.\n\n`row_tmp`와 `col_tmp`를 다시 0으로 초기화하는 것을 잊지 말아야 한다. 앞에서 숫자 버튼 배치에 이미 사용한 변수이므로 연산자 버튼 배치를 시작하기 전에 값을 리셋해야 한다.",
+      "mission": "`row_tmp`와 `col_tmp`를 초기화하고, 반복문으로 `op_frame` 안에 연산자 버튼 8개를 한 줄에 2개씩 배치한다.",
+      "expectedCode": "row_tmp = 0\ncol_tmp = 0\nfor op_text in op_list:\n    op_button = tk.Button(op_frame, text=op_text, width=5)\n    op_button.grid(row=row_tmp, column=col_tmp)\n    col_tmp = col_tmp + 1\n    if col_tmp > 1:\n        col_tmp = 0\n        row_tmp = row_tmp + 1",
+      "validation": {
+        "type": "multi-line-exact",
+        "allowTrim": true,
+        "allowExtraBlankLines": true
+      },
+      "commonErrors": [
+        {
+          "pattern": "row_tmp = 0\ncol_tmp = 0\nfor op_text in op_list:\n    op_button = tk.Button(op_frame, text=op_text, width=5)\n    op_button.grid(row=row_tmp, column=col_tmp)\n    col_tmp = col_tmp + 1\n    if col_tmp > 2:\n        col_tmp = 0\n        row_tmp = row_tmp + 1",
+          "type": "LayoutMistake",
+          "message": "연산자 버튼은 한 줄에 2개씩 배치한다. `col_tmp > 1`일 때 줄을 바꿔야 한다. `col_tmp > 2`로 하면 한 줄에 3개가 된다."
+        },
+        {
+          "pattern": "row_tmp = 0\ncol_tmp = 0\nfor op_text in op_list:\n    op_button = tk.Button(num_frame, text=op_text, width=5)\n    op_button.grid(row=row_tmp, column=col_tmp)\n    col_tmp = col_tmp + 1\n    if col_tmp > 1:\n        col_tmp = 0\n        row_tmp = row_tmp + 1",
+          "type": "WrongParent",
+          "message": "연산자 버튼은 `num_frame`이 아니라 `op_frame` 안에 만들어야 한다."
+        },
+        {
+          "pattern": "row_tmp = 0\ncol_tmp = 0\nfor num_text in op_list:\n    op_button = tk.Button(op_frame, text=num_text, width=5)\n    op_button.grid(row=row_tmp, column=col_tmp)\n    col_tmp = col_tmp + 1\n    if col_tmp > 1:\n        col_tmp = 0\n        row_tmp = row_tmp + 1",
+          "type": "VariableName",
+          "message": "반복 변수 이름을 `op_text`로 써야 한다. `num_text`는 숫자 버튼용 이름이다."
+        }
+      ],
+      "successMessage": "연산자 버튼도 배치됐어요. 이제 계산기 레이아웃이 거의 완성됐습니다.",
+      "mascot": "고드래곤_07.gif",
+      "mascotSpeech": "row_tmp랑 col_tmp 다시 0으로 초기화하는 거, 실수하면 이상한 데서 버튼이 나와. 그리고 이번엔 col_tmp > 1이야! 숫자 버튼은 3개씩이라 > 2였는데, 연산자 버튼은 2개씩이라 > 1이거든. 비슷하지만 다른 부분, 꼭 체크해~"
+    },
+    {
+      "id": "L2-08",
+      "title": "버튼 클릭 함수 만들기 (기본)",
+      "concepts": [
+        "def",
+        "function",
+        "parameter",
+        "insert",
+        "END"
+      ],
+      "explanation": "함수(function)는 특정 동작을 묶어 이름 붙인 코드 블록이다. `def`는 함수를 정의할 때 쓰는 키워드다.\n\n`def button_click(key):`는 `key`라는 입력을 받는 `button_click`이라는 함수를 만든다. 나중에 버튼을 클릭하면 이 함수가 호출되고, 클릭한 버튼의 텍스트가 `key`로 전달된다.\n\n`display_entry.insert(tk.END, key)`는 `display_entry` 입력창의 맨 끝(`tk.END`)에 `key` 값을 추가하는 코드다.\n\n이번 단계에서는 어떤 버튼을 누르든 그 글자를 입력창에 추가하는 기본 기능만 구현한다. `=`, `C`, `AC` 버튼의 특별한 동작은 마지막 단계에서 추가한다.",
+      "mission": "`key` 파라미터를 받아 `display_entry`의 끝에 그 값을 추가하는 `button_click` 함수를 만든다.",
+      "expectedCode": "def button_click(key):\n    display_entry.insert(tk.END, key)",
+      "validation": {
+        "type": "multi-line-exact",
+        "allowTrim": true,
+        "allowExtraBlankLines": true
+      },
+      "commonErrors": [
+        {
+          "pattern": "button_click(key):\n    display_entry.insert(tk.END, key)",
+          "type": "SyntaxError",
+          "message": "함수를 정의할 때는 앞에 `def`가 필요하다. `def button_click(key):`처럼 써야 한다."
+        },
+        {
+          "pattern": "def button_click():\n    display_entry.insert(tk.END, key)",
+          "type": "NameError",
+          "message": "함수가 받을 입력 값을 파라미터로 선언해야 한다. `def button_click(key):`처럼 괄호 안에 `key`를 써야 한다."
+        },
+        {
+          "pattern": "def button_click(key):\n    display_entry.append(key)",
+          "type": "AttributeError",
+          "message": "Entry 위젯에는 `append`가 없다. `display_entry.insert(tk.END, key)`를 사용해야 한다."
+        }
+      ],
+      "successMessage": "버튼 클릭 함수가 만들어졌어요. 아직 버튼에 연결하지 않았지만, 곧 연결할 거예요.",
+      "mascot": "고드래곤_08.png",
+      "mascotSpeech": "함수가 드디어 등장했어! `def`는 Define의 줄임말이야. 이 함수는 지금 당장 실행되는 게 아니야, '나중에 버튼 클릭하면 이렇게 해줘'라고 미리 등록해두는 거야. 그리고 tk.END? 입력창 맨 끝에 추가하라는 뜻이야. 글자가 하나씩 뒤에 붙는 거지!"
+    },
+    {
+      "id": "L2-09",
+      "title": "숫자 버튼에 클릭 동작 연결하기",
+      "replaces": "L2-04",
+      "concepts": [
+        "command",
+        "closure",
+        "default argument",
+        "lambda trap"
+      ],
+      "explanation": "앞서 만든 숫자 버튼 반복문에 `command` 옵션을 추가해 버튼 클릭 동작을 연결한다.\n\n`command`에 바로 `button_click`을 넣으면 안 된다. `button_click`은 `key`라는 인자가 필요한 함수인데, `command`는 인자 없는 함수만 받기 때문이다.\n\n그래서 반복문 안에서 `cmd_tmp`라는 작은 함수를 매번 새로 만든다. `def cmd_tmp(key_input=num_text):`에서 `key_input=num_text`가 핵심이다. 이것은 함수가 만들어질 때의 `num_text` 값을 `key_input`의 기본값으로 고정시킨다.\n\n이렇게 하지 않으면 '클로저 함정(closure trap)'이라는 문제가 생긴다. 반복문이 끝나면 `num_text`는 마지막 값인 `'='`이 되는데, 기본값으로 고정하지 않으면 모든 버튼이 `'='`만 입력하게 된다.",
+      "mission": "숫자 버튼 반복문에서 각 버튼에 `cmd_tmp` 함수를 만들어 `command`로 연결한다. `key_input=num_text`로 현재 값을 고정해야 한다.",
+      "expectedCode": "row_tmp = 0\ncol_tmp = 0\nfor num_text in num_list:\n    def cmd_tmp(key_input=num_text):\n        button_click(key_input)\n    num_button = tk.Button(num_frame, text=num_text, width=5, command=cmd_tmp)\n    num_button.grid(row=row_tmp, column=col_tmp)\n    col_tmp = col_tmp + 1\n    if col_tmp > 2:\n        col_tmp = 0\n        row_tmp = row_tmp + 1",
+      "validation": {
+        "type": "multi-line-exact",
+        "allowTrim": true,
+        "allowExtraBlankLines": true
+      },
+      "commonErrors": [
+        {
+          "pattern": "row_tmp = 0\ncol_tmp = 0\nfor num_text in num_list:\n    def cmd_tmp(key_input):\n        button_click(key_input)\n    num_button = tk.Button(num_frame, text=num_text, width=5, command=cmd_tmp)\n    num_button.grid(row=row_tmp, column=col_tmp)\n    col_tmp = col_tmp + 1\n    if col_tmp > 2:\n        col_tmp = 0\n        row_tmp = row_tmp + 1",
+          "type": "ClosureTrap",
+          "message": "`key_input=num_text`처럼 기본값을 설정해야 한다. 그냥 `key_input`만 쓰면 반복문이 끝난 뒤 모든 버튼이 마지막 값만 입력하게 된다."
+        },
+        {
+          "pattern": "row_tmp = 0\ncol_tmp = 0\nfor num_text in num_list:\n    def cmd_tmp(key_input=num_text):\n        button_click(key_input)\n    num_button = tk.Button(num_frame, text=num_text, width=5)\n    num_button.grid(row=row_tmp, column=col_tmp)\n    col_tmp = col_tmp + 1\n    if col_tmp > 2:\n        col_tmp = 0\n        row_tmp = row_tmp + 1",
+          "type": "MissingCommand",
+          "message": "`tk.Button`에 `command=cmd_tmp`를 추가해야 한다. 없으면 버튼을 만들어도 클릭 동작이 없다."
+        }
+      ],
+      "successMessage": "숫자 버튼 12개에 클릭 동작이 연결됐어요.",
+      "mascot": "고드래곤_07.gif",
+      "mascotSpeech": "이 부분이 좀 까다로워! `key_input=num_text`로 기본값 고정하는 거, 처음엔 왜 필요한지 이해 안 될 수도 있어. 나중에 이게 없을 때 어떻게 되는지 직접 실험해봐도 재미있을 거야. 일단은 '반복문 안에서 함수 만들 때는 현재 값을 기본값으로 고정해야 한다'고 기억해둬!"
+    },
+    {
+      "id": "L2-10",
+      "title": "연산자 버튼에 클릭 동작 연결하기",
+      "replaces": "L2-07",
+      "concepts": [
+        "command",
+        "closure",
+        "default argument"
+      ],
+      "explanation": "연산자 버튼 반복문에도 같은 방식으로 `command`를 추가한다.\n\n숫자 버튼과 완전히 같은 구조이며, 변수 이름만 `num_text` → `op_text`, `num_frame` → `op_frame`, `num_button` → `op_button`으로 바뀐다.",
+      "mission": "연산자 버튼 반복문에서 각 버튼에 `cmd_tmp` 함수를 만들어 `command`로 연결한다.",
+      "expectedCode": "row_tmp = 0\ncol_tmp = 0\nfor op_text in op_list:\n    def cmd_tmp(key_input=op_text):\n        button_click(key_input)\n    op_button = tk.Button(op_frame, text=op_text, width=5, command=cmd_tmp)\n    op_button.grid(row=row_tmp, column=col_tmp)\n    col_tmp = col_tmp + 1\n    if col_tmp > 1:\n        col_tmp = 0\n        row_tmp = row_tmp + 1",
+      "validation": {
+        "type": "multi-line-exact",
+        "allowTrim": true,
+        "allowExtraBlankLines": true
+      },
+      "commonErrors": [
+        {
+          "pattern": "row_tmp = 0\ncol_tmp = 0\nfor op_text in op_list:\n    def cmd_tmp(key_input=num_text):\n        button_click(key_input)\n    op_button = tk.Button(op_frame, text=op_text, width=5, command=cmd_tmp)\n    op_button.grid(row=row_tmp, column=col_tmp)\n    col_tmp = col_tmp + 1\n    if col_tmp > 1:\n        col_tmp = 0\n        row_tmp = row_tmp + 1",
+          "type": "WrongVariable",
+          "message": "`key_input=num_text`가 아니라 `key_input=op_text`를 사용해야 한다. 연산자 버튼 반복문에서는 `op_text`가 현재 값이다."
+        },
+        {
+          "pattern": "row_tmp = 0\ncol_tmp = 0\nfor op_text in op_list:\n    def cmd_tmp(key_input=op_text):\n        button_click(key_input)\n    op_button = tk.Button(op_frame, text=op_text, width=5, command=cmd_tmp)\n    op_button.grid(row=row_tmp, column=col_tmp)\n    col_tmp = col_tmp + 1\n    if col_tmp > 2:\n        col_tmp = 0\n        row_tmp = row_tmp + 1",
+          "type": "LayoutMistake",
+          "message": "연산자 버튼은 한 줄에 2개씩이므로 `col_tmp > 1`일 때 줄을 바꿔야 한다."
+        }
+      ],
+      "successMessage": "연산자 버튼에도 클릭 동작이 연결됐어요. 이제 버튼을 누르면 뭔가 입력이 될 거예요.",
+      "mascot": "고드래곤_08.png",
+      "mascotSpeech": "숫자 버튼이랑 거의 똑같지? 이름만 op_text, op_frame, op_button으로 바꾼 거야. 패턴을 보고 바꿀 부분만 찾아서 수정하는 거, 이게 프로그래밍 실력이야. '어? 이거 전에 한 거랑 똑같은 구조잖아?' 싶은 순간이 점점 많아질 거야~"
+    },
+    {
+      "id": "L2-11",
+      "title": "버튼 클릭 함수 완성 및 실행",
+      "replaces": "L2-08",
+      "concepts": [
+        "if",
+        "elif",
+        "else",
+        "eval",
+        "delete",
+        "mainloop"
+      ],
+      "explanation": "`button_click` 함수를 완성한다.\n\n`=` 버튼을 눌렀을 때는 입력창의 수식을 계산하고 결과를 표시해야 한다. `display_entry.get()`으로 입력창의 현재 내용을 문자열로 읽고, `eval()`로 그 수식을 실제로 계산한다. `round(..., 2)`로 소수 둘째 자리까지 반올림하고, `str()`로 다시 문자열로 변환한 뒤 `'=' + result`처럼 붙여서 입력창 끝에 추가한다.\n\n`C`와 `AC` 버튼은 `display_entry.delete(0, tk.END)`로 입력창 전체를 지운다. 여기서는 두 버튼의 동작이 같지만, 실제 계산기에서는 C(마지막 입력만 지우기)와 AC(전부 지우기)를 다르게 구현하는 경우도 있다.\n\n그 외의 버튼은 `else` 블록에서 기존처럼 입력창에 글자를 추가한다.\n\n마지막의 `main_win.mainloop()`는 프로그램을 실행하는 코드다.",
+      "mission": "if/elif/else를 사용해 `button_click` 함수를 완성하고, `main_win.mainloop()`로 프로그램을 실행한다.",
+      "expectedCode": "def button_click(key):\n    if key == '=':\n        result = str(round(eval(display_entry.get()),2))\n        display_entry.insert(tk.END, '=' + result)\n    elif key == 'C':\n        display_entry.delete(0, tk.END)\n    elif key == 'AC':\n        display_entry.delete(0, tk.END)\n    else:\n        display_entry.insert(tk.END, key)\nmain_win.mainloop()",
+      "validation": {
+        "type": "multi-line-exact",
+        "allowTrim": true,
+        "allowExtraBlankLines": true
+      },
+      "commonErrors": [
+        {
+          "pattern": "def button_click(key):\n    if key == '=':\n        result = str(round(eval(display_entry.get()),2))\n        display_entry.insert(tk.END, '=' + result)\n    elif key == 'C':\n        display_entry.delete(0, tk.END)\n    elif key == 'AC':\n        display_entry.delete(0, tk.END)\n    else:\n        display_entry.insert(tk.END, key)",
+          "type": "MissingMainloop",
+          "message": "`main_win.mainloop()`가 빠졌다. 이 코드가 없으면 창이 바로 꺼진다."
+        },
+        {
+          "pattern": "def button_click(key):\n    if key == '=':\n        result = eval(display_entry.get())\n        display_entry.insert(tk.END, '=' + result)\n    elif key == 'C':\n        display_entry.delete(0, tk.END)\n    elif key == 'AC':\n        display_entry.delete(0, tk.END)\n    else:\n        display_entry.insert(tk.END, key)\nmain_win.mainloop()",
+          "type": "TypeError",
+          "message": "`eval()`의 결과는 숫자(int 또는 float)인데, 문자열과 `+`로 합치려면 `str()`로 변환해야 한다."
+        },
+        {
+          "pattern": "def button_click(key):\n    if key == '=':\n        result = str(round(eval(display_entry.get()),2))\n        display_entry.insert(tk.END, '=' + result)\n    if key == 'C':\n        display_entry.delete(0, tk.END)\n    if key == 'AC':\n        display_entry.delete(0, tk.END)\n    else:\n        display_entry.insert(tk.END, key)\nmain_win.mainloop()",
+          "type": "LogicError",
+          "message": "`elif`가 아닌 `if`를 쓰면 조건이 독립적으로 모두 검사된다. `elif`를 써야 앞 조건이 맞을 때 뒤 조건을 건너뛴다."
+        }
+      ],
+      "successMessage": "Lesson 2 완성! 이제 20개의 버튼이 있는 작동하는 계산기가 완성됐습니다.",
+      "mascot": "고드래곤_07.gif",
+      "mascotSpeech": "드디어 완성이야!! eval()이 수식 문자열을 실제로 계산해주는 거야 - 파이썬의 강력한 기능 중 하나거든. Lesson 1에서 버튼 3개 만들었을 때랑 지금이랑 비교해봐. 버튼이 20개인데 코드 길이는 얼마 안 늘었지? 이게 바로 반복문 + 리스트의 힘이야! 수고했어~",
+      "completionBadges": [
+        "계산기 완성자",
+        "반복문 마스터",
+        "Lesson 2 완성자"
+      ]
+    }
+  ],
+  "lessonCompletion": {
+    "finalCode": [
+      "import tkinter as tk",
+      "main_win = tk.Tk()",
+      "main_win.title(\"CB_Calc\")",
+      "display_entry = tk.Entry(main_win, width=45, bg=\"light green\")",
+      "display_entry.grid(row=0, column=0, columnspan=2)",
+      "num_frame = tk.Frame(main_win)",
+      "num_frame.grid(row=1, column=0, sticky='W')",
+      "num_list = ['7', '8', '9',",
+      "            '4', '5', '6',",
+      "            '1', '2', '3',",
+      "            '0', '.', '=']",
+      "row_tmp = 0",
+      "col_tmp = 0",
+      "for num_text in num_list:",
+      "    def cmd_tmp(key_input=num_text):",
+      "        button_click(key_input)",
+      "    num_button = tk.Button(num_frame, text=num_text, width=5, command=cmd_tmp)",
+      "    num_button.grid(row=row_tmp, column=col_tmp)",
+      "    col_tmp = col_tmp + 1",
+      "    if col_tmp > 2:",
+      "        col_tmp = 0",
+      "        row_tmp = row_tmp + 1",
+      "op_frame = tk.Frame(main_win)",
+      "op_frame.grid(row=1, column=1, sticky='E')",
+      "op_list = ['*', '/',",
+      "           '+', '-',",
+      "           '(', ')',",
+      "           'C', 'AC']",
+      "row_tmp = 0",
+      "col_tmp = 0",
+      "for op_text in op_list:",
+      "    def cmd_tmp(key_input=op_text):",
+      "        button_click(key_input)",
+      "    op_button = tk.Button(op_frame, text=op_text, width=5, command=cmd_tmp)",
+      "    op_button.grid(row=row_tmp, column=col_tmp)",
+      "    col_tmp = col_tmp + 1",
+      "    if col_tmp > 1:",
+      "        col_tmp = 0",
+      "        row_tmp = row_tmp + 1",
+      "def button_click(key):",
+      "    if key == '=':",
+      "        result = str(round(eval(display_entry.get()),2))",
+      "        display_entry.insert(tk.END, '=' + result)",
+      "    elif key == 'C':",
+      "        display_entry.delete(0, tk.END)",
+      "    elif key == 'AC':",
+      "        display_entry.delete(0, tk.END)",
+      "    else:",
+      "        display_entry.insert(tk.END, key)",
+      "main_win.mainloop()"
+    ],
+    "summaryTemplate": "계산기 Lesson 2를 {elapsedTime} 만에 완성했어요. 실행 {runCount}회, 오타 해결 {typoCount}회, 최고 연속 성공 {bestSuccessStreak}회를 기록했습니다."
+  }
+}
