@@ -12,6 +12,10 @@
       <p class="eyebrow">Lesson 1</p>
       <h1>코드로 계산기 만들기</h1>
     </div>
+    <div class="topbar-badges" aria-label="획득 배지">
+      <span class="topbar-badges-label">배지</span>
+      <div id="badges" class="badges"></div>
+    </div>
     <div class="stats" aria-label="학습 기록">
       <div>
         <span>진행</span>
@@ -79,18 +83,20 @@
 
       <div class="actions">
         <button type="button" id="runBtn">실행</button>
-        <button type="button" id="hintBtn">힌트</button>
+        <button type="button" id="hintBtn">힌트 보기</button>
         <button type="button" id="nextBtn" disabled>다음 단계</button>
+      </div>
+
+      <div id="hintBox" class="hint-box" hidden>
+        <div class="hint-box-head">
+          <span>입력할 코드</span>
+        </div>
+        <pre id="hintCode"></pre>
       </div>
 
       <div class="result" id="resultBox" data-state="idle">
         <h3 id="resultTitle">준비 완료</h3>
         <p id="resultMessage">설명을 읽고 코드를 직접 입력한 뒤 실행해보세요.</p>
-      </div>
-
-      <div class="badge-box">
-        <h3>배지</h3>
-        <div id="badges" class="badges"></div>
       </div>
     </section>
   </main>

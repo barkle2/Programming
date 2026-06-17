@@ -33,11 +33,30 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  padding: 20px 28px;
+  gap: 16px;
+  padding: 16px 28px;
   border-bottom: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(14px);
+}
+
+.topbar-badges {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 0 8px;
+  flex-wrap: wrap;
+}
+
+.topbar-badges-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
 }
 
 .eyebrow {
@@ -185,8 +204,7 @@ h3 {
   gap: 6px;
 }
 
-.concepts span,
-.badges span {
+.concepts span {
   display: inline-flex;
   min-height: 26px;
   align-items: center;
@@ -306,7 +324,9 @@ code {
 
 #codeGhost {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   margin: 0;
   padding: 14px;
   color: #738094;
@@ -481,22 +501,98 @@ button:disabled {
 }
 
 
-.badge-box {
-  margin-top: 18px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
-}
-
 .badges {
   display: flex;
-  min-height: 36px;
   flex-wrap: wrap;
   gap: 8px;
+  align-items: center;
 }
 
-.badges span {
-  background: #fff3c4;
-  color: #7a4d00;
+.badge-token {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: default;
+}
+
+.badge-img {
+  width: 56px;
+  height: auto;
+  cursor: default;
+  transition: transform 0.15s;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+}
+
+.badge-token:hover .badge-img {
+  transform: scale(1.15);
+}
+
+.badge-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: center;
+  line-height: 1.25;
+  word-break: keep-all;
+  max-width: 60px;
+}
+
+.badge-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  line-height: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+}
+
+.no-badge {
+  font-size: 12px;
+  color: var(--muted);
+  align-self: center;
+}
+
+.hint-box {
+  margin-top: 12px;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  background: #0d1117;
+  overflow: hidden;
+}
+
+.hint-box-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 14px;
+  background: #161b22;
+  border-bottom: 1px solid #334155;
+}
+
+.hint-box-head span {
+  font-size: 11px;
+  font-weight: 700;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#hintCode {
+  margin: 0;
+  padding: 12px 14px;
+  color: #e5eef8;
+  font: 16px/1.55 Consolas, "Cascadia Mono", monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+  user-select: none;
+}
+
+.result[data-state="idle"] {
+  display: none;
 }
 
 .login[hidden] {

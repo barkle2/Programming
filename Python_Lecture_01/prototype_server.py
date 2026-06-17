@@ -11,18 +11,14 @@ HOST = "localhost"
 PORT = 8767
 
 
-RUNNER_SUFFIX = r'''
+RUNNER_SUFFIX = '''
 
-# --- Prototype helper: keep a Tk window visible before mainloop lessons. ---
+# ---- lesson runner helper ----
 try:
-    import tkinter as _prototype_tk
-    _roots = [
-        _value for _value in list(globals().values())
-        if isinstance(_value, _prototype_tk.Tk)
-    ]
-    if _roots and "mainloop()" not in __USER_CODE__:
-        _root = _roots[0]
-        _root.mainloop()
+    import tkinter as _tk_ref
+    _tk_roots = [v for v in globals().values() if isinstance(v, _tk_ref.Tk)]
+    if _tk_roots and not _LESSON_HAS_MAINLOOP_:
+        _tk_roots[0].mainloop()
 except Exception:
     raise
 '''
@@ -129,8 +125,14 @@ class PrototypeHandler(SimpleHTTPRequestHandler):
         temp_dir = Path(tempfile.gettempdir()) / "calculator_learning_runs"
         temp_dir.mkdir(parents=True, exist_ok=True)
         script_path = temp_dir / "current_lesson_run.py"
-        suffix = RUNNER_SUFFIX.replace("__USER_CODE__", repr(user_code))
-        script_path.write_text(user_code + suffix, encoding="utf-8")
+        has_mainloop = "mainloop()" in user_code
+        content = (
+            "# -*- coding: utf-8 -*-\n"
+            + user_code
+            + f"\n_LESSON_HAS_MAINLOOP_ = {has_mainloop}\n"
+            + RUNNER_SUFFIX
+        )
+        script_path.write_text(content, encoding="utf-8")
         return script_path
 
     def _send_json(self, status, payload):

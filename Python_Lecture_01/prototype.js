@@ -1,3 +1,5 @@
+const LESSON_NUM = new URLSearchParams(window.location.search).get("lesson") || "1";
+
 const state = {
   data: null,
   currentIndex: 0,
@@ -41,6 +43,8 @@ const els = {
   consoleWrap: document.querySelector("#consoleWrap"),
   consoleOutput: document.querySelector("#consoleOutput"),
   consoleClearBtn: document.querySelector("#consoleClearBtn"),
+  hintBox: document.querySelector("#hintBox"),
+  hintCode: document.querySelector("#hintCode"),
   completionModal: document.querySelector("#completionModal"),
   completionSummary: document.querySelector("#completionSummary"),
   closeCompletionBtn: document.querySelector("#closeCompletionBtn"),
@@ -62,7 +66,7 @@ function init() {
 
 async function startLesson(savedData) {
   try {
-    const response = await fetch("learning_steps_lesson1.json", { cache: "no-store" });
+    const response = await fetch(`learning_steps_lesson${LESSON_NUM}.json`, { cache: "no-store" });
     state.data = await response.json();
   } catch {
     els.loginModal.hidden = true;
@@ -72,7 +76,7 @@ async function startLesson(savedData) {
 
   if (savedData) {
     state.completed = new Set(savedData.completed);
-    state.currentIndex = savedData.currentIndex;
+    state.currentIndex = Math.min(savedData.currentIndex ?? 0, state.data.steps.length - 1);
     state.runCount = savedData.runCount ?? 0;
     state.successCount = savedData.successCount ?? 0;
     state.failureCount = savedData.failureCount ?? 0;
@@ -105,12 +109,12 @@ function saveProgress() {
     badges: [...state.badges],
     elapsedMs: Date.now() - state.startTime
   };
-  localStorage.setItem(`python_lecture_1_${state.userEmail}`, JSON.stringify(data));
+  localStorage.setItem(`python_lecture_${LESSON_NUM}_${state.userEmail}`, JSON.stringify(data));
 }
 
 function loadProgress(email) {
   try {
-    const raw = localStorage.getItem(`python_lecture_1_${email}`);
+    const raw = localStorage.getItem(`python_lecture_${LESSON_NUM}_${email}`);
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
@@ -177,6 +181,8 @@ function renderStep(index) {
   }
   setResult("idle", "준비 완료", "설명을 읽고 코드를 직접 입력한 뒤 실행해보세요.");
   setConsole("", "");
+  els.hintBox.hidden = true;
+  els.hintBtn.textContent = "힌트 보기";
 
   [...els.stepList.querySelectorAll("button")].forEach((button, buttonIndex) => {
     const targetStep = state.data.steps[buttonIndex];
@@ -215,6 +221,8 @@ async function runCurrentStep() {
     }
     setResult("success", "실행 성공", `${step.successMessage} ${launchResult.message}`);
     els.nextBtn.disabled = false;
+    els.hintBox.hidden = true;
+    els.hintBtn.textContent = "힌트 보기";
     saveProgress();
     if (state.completed.size === state.data.steps.length) {
       showCompletion();
@@ -282,13 +290,58 @@ function explainPythonError(stderr) {
   return handler ? (handler(q) ?? null) : null;
 }
 
+function getNewLinesForHint(index) {
+  const step = state.data.steps[index];
+  const expectedCode = step.expectedCode;
+  if (index <= 0 && !step.validation?.prevCode) return expectedCode;
+  const prevCode = step.validation?.prevCode
+    || (index > 0 ? state.data.steps[index - 1].expectedCode : "");
+
+  if (isEditStep(step)) {
+    const prevLines = prevCode.split("\n").map((l) => l.trim()).filter(Boolean);
+    const newLines  = expectedCode.split("\n").map((l) => l.trim()).filter(Boolean);
+    const newLineSet = new Set(newLines);
+    const prevLineSet = new Set(prevLines);
+
+    if (step.validation.editMode === "delete") {
+      const toDelete = prevLines.filter((l) => !newLineSet.has(l));
+      return toDelete.length > 0
+        ? `[삭제할 줄]\n${toDelete.join("\n")}`
+        : "(삭제할 줄 없음)";
+    }
+    if (step.validation.editMode === "modify") {
+      const toDelete = prevLines.filter((l) => !newLineSet.has(l));
+      const changed  = newLines.filter((l) => !prevLineSet.has(l));
+      let hint = "";
+      if (changed.length > 0)  hint += `[바꿀 줄]\n${changed.join("\n")}`;
+      if (toDelete.length > 0) hint += `${hint ? "\n\n" : ""}[삭제할 줄]\n${toDelete.join("\n")}`;
+      return hint || expectedCode;
+    }
+  }
+
+  const prevLineSet = new Set(
+    prevCode.split("\n").map((l) => l.trim()).filter(Boolean)
+  );
+  return expectedCode
+    .split("\n")
+    .filter((line) => !prevLineSet.has(line.trim()))
+    .join("\n")
+    .trim();
+}
+
 function showHint() {
-  const step = getCurrentStep();
-  setResult("hint", "힌트", `이번 단계의 정답은 ${step.expectedCode.length}글자입니다. 핵심 단어는 \`${step.expectedCode.split(" ")[0]}\`입니다.`);
+  if (els.hintBox.hidden) {
+    els.hintCode.textContent = getNewLinesForHint(state.currentIndex);
+    els.hintBox.hidden = false;
+    els.hintBtn.textContent = "힌트 닫기";
+  } else {
+    els.hintBox.hidden = true;
+    els.hintBtn.textContent = "힌트 보기";
+  }
 }
 
 async function nextStep() {
-  try { await fetch("/stop", { method: "POST" }); } catch (_) {}
+  fetch("/stop", { method: "POST" }).catch(() => {});
   const nextIndex = Math.min(state.currentIndex + 1, state.data.steps.length - 1);
   renderStep(nextIndex);
   saveProgress();
@@ -297,8 +350,14 @@ async function nextStep() {
 function resetStep() {
   const step = getCurrentStep();
   if (isFullProgramMode()) {
-    const prefill = computeFullProgramPrefill(state.currentIndex);
-    els.codeInput.value = prefill ? `${prefill}\n` : "";
+    if (isEditStep(step)) {
+      const prevCode = step.validation?.prevCode
+        || (state.currentIndex > 0 ? state.data.steps[state.currentIndex - 1].expectedCode : "");
+      els.codeInput.value = prevCode ? `${prevCode}\n` : "";
+    } else {
+      const prefill = computeFullProgramPrefill(state.currentIndex);
+      els.codeInput.value = prefill ? `${prefill}\n` : "";
+    }
   } else {
     els.codeInput.value = step.validation?.type === "standalone" ? "" : getPrefixBefore(state.currentIndex);
   }
@@ -312,6 +371,11 @@ function getCurrentStep() {
   return state.data.steps[state.currentIndex];
 }
 
+function isEditStep(step) {
+  const mode = step.validation?.editMode;
+  return mode === "modify" || mode === "delete";
+}
+
 function normalizeCode(code) {
   return code.replace(/\r/g, "").trim().replace(/[ \t]+/g, " ");
 }
@@ -321,7 +385,7 @@ function normalizeCodeBlock(code) {
     .replace(/\r/g, "")
     .split("\n")
     .map((line) => line.trim().replace(/[ \t]+/g, " "))
-    .filter((line) => line.length > 0)
+    .filter((line) => line.length > 0 && !line.startsWith("#"))
     .join("\n");
 }
 
@@ -422,6 +486,11 @@ function getCodeForEditor(index) {
     if (state.completed.has(step.id)) {
       return `${step.expectedCode}\n`;
     }
+    if (isEditStep(step)) {
+      const prevCode = step.validation?.prevCode
+        || (index > 0 ? state.data.steps[index - 1].expectedCode : "");
+      return prevCode ? `${prevCode}\n` : "";
+    }
     const prefill = computeFullProgramPrefill(index);
     return prefill ? `${prefill}\n` : "";
   }
@@ -432,10 +501,15 @@ function getCodeForEditor(index) {
 }
 
 function updateCodeGhost() {
+  if (!state.data) return;
   const step = getCurrentStep();
 
   if (isFullProgramMode()) {
     if (state.completed.has(step.id)) {
+      els.codeGhost.innerHTML = "";
+      return;
+    }
+    if (isEditStep(step)) {
       els.codeGhost.innerHTML = "";
       return;
     }
@@ -447,6 +521,7 @@ function updateCodeGhost() {
       return;
     }
     els.codeGhost.innerHTML = buildFullProgramGhostHtml(state.currentIndex);
+    syncGhostScroll();
     return;
   }
 
@@ -462,6 +537,7 @@ function updateCodeGhost() {
   }
 
   els.codeGhost.innerHTML = `<span class="ghost-prefix">${escapeHtml(prefix)}</span>${escapeHtml(step.expectedCode)}`;
+  syncGhostScroll();
 }
 
 function stepMatches(step, userCode) {
@@ -495,7 +571,7 @@ function buildGenericError(step) {
 }
 
 function awardSuccessBadges() {
-  state.data.gameRules.successStreakMilestones.forEach((count) => {
+  (state.data.gameRules?.successStreakMilestones ?? []).forEach((count) => {
     if (state.currentSuccessStreak >= count) {
       state.badges.add(`${count}회 연속 성공`);
     }
@@ -503,19 +579,41 @@ function awardSuccessBadges() {
 }
 
 function awardTypoBadges() {
-  state.data.gameRules.typoBadgeMilestones.forEach((rule) => {
+  (state.data.gameRules?.typoBadgeMilestones ?? []).forEach((rule) => {
     if (state.typoCount >= rule.count) {
       state.badges.add(rule.badge);
     }
   });
 }
 
+const BADGE_CONFIG = {
+  "첫 성공":         "badges/badge_first_success.png",
+  "3회 연속 성공":   "badges/badge_streak_3.png",
+  "5회 연속 성공":   "badges/badge_streak_5.png",
+  "7회 연속 성공":   "badges/badge_streak_7.png",
+  "불굴의 의지 I":   "badges/badge_iron_will_1.png",
+  "불굴의 의지 II":  "badges/badge_iron_will_2.png",
+  "불굴의 의지 III": "badges/badge_iron_will_3.png",
+  "첫 창 완성":      "badges/badge_first_window.png",
+  "Lesson 1 완성자": "badges/badge_lesson1_complete.png",
+  "Lesson 2 완성자": "badges/badge_lesson2_complete.png",
+};
+
 function renderBadges() {
   if (state.badges.size === 0) {
-    els.badges.innerHTML = "<span>아직 배지가 없어요</span>";
+    els.badges.innerHTML = '<span class="no-badge">아직 없어요</span>';
     return;
   }
-  els.badges.innerHTML = [...state.badges].map((badge) => `<span>${escapeHtml(badge)}</span>`).join("");
+  els.badges.innerHTML = [...state.badges].map((name) => {
+    const src = BADGE_CONFIG[name];
+    const imgHtml = src
+      ? `<img class="badge-img" src="${src}" alt="${escapeHtml(name)}">`
+      : `<div class="badge-circle" style="background:linear-gradient(145deg,#9ca3af,#4b5563)">🏅</div>`;
+    return `<div class="badge-token" title="${escapeHtml(name)}">
+      ${imgHtml}
+      <span class="badge-label">${escapeHtml(name)}</span>
+    </div>`;
+  }).join("");
 }
 
 function renderStepListState() {
@@ -546,7 +644,10 @@ function formatElapsed(ms) {
 }
 
 function showCompletion() {
-  const summary = state.data.lessonCompletion.summaryTemplate
+  const template = state.data.lessonCompletion?.summaryTemplate
+    || state.data.lessonCompletion?.summary
+    || "";
+  const summary = template
     .replace("{elapsedTime}", formatElapsed(Date.now() - state.startTime))
     .replace("{runCount}", state.runCount)
     .replace("{typoCount}", state.typoCount)
@@ -591,16 +692,16 @@ els.inputEmail.addEventListener("keydown", (e) => { if (e.key === "Enter") handl
 els.inputName.addEventListener("keydown", (e) => { if (e.key === "Enter") els.inputEmail.focus(); });
 els.resumeBtn.addEventListener("click", () => startLesson(loadProgress(state.userEmail)));
 els.restartBtn.addEventListener("click", () => {
-  localStorage.removeItem(`python_lecture_1_${state.userEmail}`);
+  localStorage.removeItem(`python_lecture_${LESSON_NUM}_${state.userEmail}`);
   startLesson(null);
 });
 els.closeCompletionBtn.addEventListener("click", () => {
   els.completionModal.hidden = true;
 });
 els.codeInput.addEventListener("input", updateCodeGhost);
-els.codeInput.addEventListener("scroll", () => {
-  els.codeGhost.scrollTop = els.codeInput.scrollTop;
-  els.codeGhost.scrollLeft = els.codeInput.scrollLeft;
-});
+els.codeInput.addEventListener("scroll", syncGhostScroll);
+function syncGhostScroll() {
+  els.codeGhost.style.top = `-${els.codeInput.scrollTop}px`;
+}
 
 init();
