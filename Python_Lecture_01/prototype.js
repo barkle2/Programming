@@ -61,6 +61,26 @@ const els = {
 };
 
 function init() {
+  try {
+    const raw = localStorage.getItem("python_lecture_user");
+    if (raw) {
+      const { userName, userEmail } = JSON.parse(raw);
+      if (userName && userEmail) {
+        state.userName = userName;
+        state.userEmail = userEmail;
+        const saved = loadProgress(userEmail);
+        if (saved && saved.completed && saved.completed.length > 0) {
+          els.resumeGreet.textContent = `반가워요, ${userName}님!`;
+          els.resumeDesc.textContent = `${saved.completed.length}단계까지 완료했어요. 이어서 할까요?`;
+          els.loginScreen.hidden = true;
+          els.resumeScreen.hidden = false;
+        } else {
+          startLesson(null);
+        }
+        return;
+      }
+    }
+  } catch {}
   els.inputName.focus();
 }
 
@@ -110,6 +130,7 @@ function saveProgress() {
     elapsedMs: Date.now() - state.startTime
   };
   localStorage.setItem(`python_lecture_${LESSON_NUM}_${state.userEmail}`, JSON.stringify(data));
+  localStorage.setItem("python_lecture_user", JSON.stringify({ userName: state.userName, userEmail: state.userEmail }));
 }
 
 function loadProgress(email) {
@@ -342,7 +363,15 @@ function showHint() {
 
 async function nextStep() {
   fetch("/stop", { method: "POST" }).catch(() => {});
-  const nextIndex = Math.min(state.currentIndex + 1, state.data.steps.length - 1);
+  const nextIndex = state.currentIndex + 1;
+  if (nextIndex >= state.data.steps.length) {
+    const nextLesson = parseInt(LESSON_NUM) + 1;
+    if (state.userEmail) {
+      localStorage.setItem("python_lecture_user", JSON.stringify({ userName: state.userName, userEmail: state.userEmail }));
+    }
+    window.location.href = `prototype.html?lesson=${nextLesson}`;
+    return;
+  }
   renderStep(nextIndex);
   saveProgress();
 }
@@ -380,11 +409,46 @@ function normalizeCode(code) {
   return code.replace(/\r/g, "").trim().replace(/[ \t]+/g, " ");
 }
 
+function normalizeLineSpaces(line) {
+  let result = "";
+  let i = 0;
+  while (i < line.length) {
+    const ch = line[i];
+    if (ch === '"' || ch === "'") {
+      const quote = ch;
+      result += ch;
+      i++;
+      while (i < line.length) {
+        if (line[i] === "\\" && i + 1 < line.length) {
+          result += line[i] + line[i + 1];
+          i += 2;
+        } else if (line[i] === quote) {
+          result += line[i++];
+          break;
+        } else {
+          result += line[i++];
+        }
+      }
+    } else if (ch === " " || ch === "\t") {
+      let j = i + 1;
+      while (j < line.length && (line[j] === " " || line[j] === "\t")) j++;
+      const prevCh = result.length > 0 ? result[result.length - 1] : "";
+      const nextCh = j < line.length ? line[j] : "";
+      if (/\w/.test(prevCh) && /\w/.test(nextCh)) result += " ";
+      i = j;
+    } else {
+      result += ch;
+      i++;
+    }
+  }
+  return result;
+}
+
 function normalizeCodeBlock(code) {
   return code
     .replace(/\r/g, "")
     .split("\n")
-    .map((line) => line.trim().replace(/[ \t]+/g, " "))
+    .map((line) => normalizeLineSpaces(line.trim()))
     .filter((line) => line.length > 0 && !line.startsWith("#"))
     .join("\n");
 }
