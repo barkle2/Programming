@@ -22,6 +22,7 @@ const els = {
   streakText: document.querySelector("#streakText"),
   timerText: document.querySelector("#timerText"),
   lessonGoal: document.querySelector("#lessonGoal"),
+  lessonTabs: document.querySelector("#lessonTabs"),
   stepList: document.querySelector("#stepList"),
   stepId: document.querySelector("#stepId"),
   stepTitle: document.querySelector("#stepTitle"),
@@ -30,6 +31,11 @@ const els = {
   missionText: document.querySelector("#missionText"),
   codeInput: document.querySelector("#codeInput"),
   codeGhost: document.querySelector("#codeGhost"),
+  lineNumbers: document.querySelector("#lineNumbers"),
+  lessonEyebrow: document.querySelector("#lessonEyebrow"),
+  courseHeading: document.querySelector("#courseHeading"),
+  loginEyebrow: document.querySelector("#loginEyebrow"),
+  completionTitle: document.querySelector("#completionTitle"),
   mascotImg: document.querySelector("#mascotImg"),
   mascotBubble: document.querySelector("#mascotBubble"),
   resetStepBtn: document.querySelector("#resetStepBtn"),
@@ -61,6 +67,7 @@ const els = {
 };
 
 function init() {
+  els.loginEyebrow.textContent = `Lesson ${LESSON_NUM}`;
   try {
     const raw = localStorage.getItem("python_lecture_user");
     if (raw) {
@@ -69,6 +76,12 @@ function init() {
         state.userName = userName;
         state.userEmail = userEmail;
         const saved = loadProgress(userEmail);
+        // 레슨 탭으로 이동해 온 경우 재개 화면 없이 바로 진입한다
+        if (sessionStorage.getItem("skip_resume")) {
+          sessionStorage.removeItem("skip_resume");
+          startLesson(saved || null);
+          return;
+        }
         if (saved && saved.completed && saved.completed.length > 0) {
           els.resumeGreet.textContent = `반가워요, ${userName}님!`;
           els.resumeDesc.textContent = `${saved.completed.length}단계까지 완료했어요. 이어서 할까요?`;
@@ -85,6 +98,8 @@ function init() {
 }
 
 async function startLesson(savedData) {
+  // 로그인된 사용자가 레슨으로 진입하는 경로이므로, 비동기 작업 전에 모달을 즉시 숨겨 깜빡임을 막는다
+  els.loginModal.hidden = true;
   try {
     const response = await fetch(`learning_steps_lesson${LESSON_NUM}.json`, { cache: "no-store" });
     state.data = await response.json();
@@ -93,6 +108,9 @@ async function startLesson(savedData) {
     setResult("error", "학습 데이터를 불러오지 못했어요", "로컬 서버로 prototype.html을 열어야 JSON 파일을 읽을 수 있습니다.");
     return;
   }
+
+  // 잠긴 레슨에 직접 접근한 경우 갈 수 있는 레슨으로 되돌린다
+  if (!(await enforceLessonLock())) return;
 
   if (savedData) {
     state.completed = new Set(savedData.completed);
@@ -111,13 +129,142 @@ async function startLesson(savedData) {
   renderStep(state.currentIndex);
   renderBadges();
   startTimer();
-  els.loginModal.hidden = true;
+  buildLessonTabs();
+}
+
+// 존재하는 레슨 파일을 탐색하고 각 레슨의 완료 여부까지 묶어서 돌려준다(캐시)
+async function probeLessons() {
+  if (state.lessonsCache) return state.lessonsCache;
+  const lessons = [];
+  for (let n = 1; n <= 20; n++) {
+    try {
+      const res = await fetch(`learning_steps_lesson${n}.json`, { cache: "no-store" });
+      if (!res.ok) break;
+      const data = await res.json();
+      const stepCount = data.steps?.length ?? 0;
+      const prog = loadProgressFor(n, state.userEmail);
+      const completed = !!(prog && stepCount > 0 && (prog.completed?.length ?? 0) >= stepCount);
+      lessons.push({ n, title: data.lesson?.title || `Lesson ${n}`, stepCount, completed });
+    } catch {
+      break;
+    }
+  }
+  state.lessonsCache = lessons;
+  return lessons;
+}
+
+// 레슨 잠금 해제 규칙: 1번은 항상 열림, 그 외에는 직전 레슨을 완료했거나 이미 끝낸 레슨이면 열림
+function computeUnlocked(lessons) {
+  const map = new Map();
+  let prevCompleted = true;
+  lessons.forEach(({ n, completed }) => {
+    map.set(n, n === 1 || prevCompleted || completed);
+    prevCompleted = completed;
+  });
+  return map;
+}
+
+// 잠긴 레슨에 직접 접근하면 갈 수 있는 가장 높은 레슨으로 되돌린다. 진입 허용 시 true 반환.
+async function enforceLessonLock() {
+  const lessons = await probeLessons();
+  if (!lessons.length) return true;
+  const unlockedMap = computeUnlocked(lessons);
+  const curN = parseInt(LESSON_NUM);
+  if (!unlockedMap.has(curN) || unlockedMap.get(curN)) return true;
+
+  let target = 1;
+  unlockedMap.forEach((ok, n) => {
+    if (ok) target = Math.max(target, n);
+  });
+  sessionStorage.setItem("skip_resume", "1");
+  window.location.replace(`prototype.html?lesson=${target}`);
+  return false;
+}
+
+// 사용 가능한 레슨을 찾아 레슨 이동 탭을 만든다(이전 레슨 완료 전까지는 잠금)
+async function buildLessonTabs() {
+  if (!els.lessonTabs) return;
+  const lessons = await probeLessons();
+  const unlockedMap = computeUnlocked(lessons);
+
+  els.lessonTabs.innerHTML = "";
+  lessons.forEach(({ n, title, completed }) => {
+    const unlocked = unlockedMap.get(n);
+    const isCurrent = String(n) === String(LESSON_NUM);
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "lesson-tab";
+    button.textContent = unlocked ? `L${n}` : `🔒 L${n}`;
+    button.title = unlocked
+      ? `Lesson ${n} · ${title}`
+      : `Lesson ${n} · 이전 레슨을 완료하면 열려요`;
+    if (isCurrent) button.classList.add("active");
+    if (completed) button.classList.add("done");
+    if (!unlocked) {
+      button.classList.add("locked");
+      button.disabled = true;
+    }
+
+    button.addEventListener("click", () => {
+      if (isCurrent || !unlocked) return;
+      saveProgress();
+      if (state.userEmail) {
+        localStorage.setItem("python_lecture_user", JSON.stringify({ userName: state.userName, userEmail: state.userEmail }));
+      }
+      sessionStorage.setItem("skip_resume", "1");
+      window.location.href = `prototype.html?lesson=${n}`;
+    });
+
+    els.lessonTabs.append(button);
+  });
+}
+
+// 이메일별 단일 저장소 키. 한 사람의 모든 레슨 진행상황을 이 안에 모아둔다.
+const progressKey = (email) => `python_lecture_progress_${email}`;
+
+function readUserStore(email) {
+  if (!email) return null;
+  try {
+    const raw = localStorage.getItem(progressKey(email));
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  // 예전 방식(레슨별 키)으로 저장된 데이터가 있으면 한 번에 합쳐서 옮긴다
+  return migrateLegacyProgress(email);
+}
+
+function writeUserStore(email, store) {
+  localStorage.setItem(progressKey(email), JSON.stringify(store));
+}
+
+function migrateLegacyProgress(email) {
+  const lessons = {};
+  let userName = "";
+  let found = false;
+  for (let n = 1; n <= 20; n++) {
+    const legacyKey = `python_lecture_${n}_${email}`;
+    const raw = localStorage.getItem(legacyKey);
+    if (!raw) continue;
+    try {
+      const data = JSON.parse(raw);
+      lessons[n] = data;
+      if (data.userName) userName = data.userName;
+      found = true;
+    } catch {}
+  }
+  if (!found) return null;
+  const store = { userName, lessons };
+  writeUserStore(email, store);
+  for (let n = 1; n <= 20; n++) localStorage.removeItem(`python_lecture_${n}_${email}`);
+  return store;
 }
 
 function saveProgress() {
   if (!state.userEmail) return;
-  const data = {
-    userName: state.userName,
+  const store = readUserStore(state.userEmail) || { userName: state.userName, lessons: {} };
+  store.userName = state.userName;
+  if (!store.lessons) store.lessons = {};
+  store.lessons[LESSON_NUM] = {
     currentIndex: state.currentIndex,
     completed: [...state.completed],
     runCount: state.runCount,
@@ -129,17 +276,17 @@ function saveProgress() {
     badges: [...state.badges],
     elapsedMs: Date.now() - state.startTime
   };
-  localStorage.setItem(`python_lecture_${LESSON_NUM}_${state.userEmail}`, JSON.stringify(data));
+  writeUserStore(state.userEmail, store);
   localStorage.setItem("python_lecture_user", JSON.stringify({ userName: state.userName, userEmail: state.userEmail }));
 }
 
 function loadProgress(email) {
-  try {
-    const raw = localStorage.getItem(`python_lecture_${LESSON_NUM}_${email}`);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
+  return loadProgressFor(LESSON_NUM, email);
+}
+
+function loadProgressFor(lessonNum, email) {
+  const store = readUserStore(email);
+  return store?.lessons?.[lessonNum] || null;
 }
 
 function handleLogin() {
@@ -163,6 +310,8 @@ function handleLogin() {
 
 function renderLesson() {
   document.title = state.data.courseTitle;
+  els.lessonEyebrow.textContent = `Lesson ${LESSON_NUM}`;
+  els.courseHeading.textContent = state.data.lesson.title || state.data.courseTitle;
   els.lessonGoal.textContent = state.data.lesson.goal;
   els.stepList.innerHTML = "";
 
@@ -191,6 +340,7 @@ function renderStep(index) {
   els.missionText.textContent = step.mission;
   els.codeInput.value = getCodeForEditor(index);
   updateCodeGhost();
+  updateLineNumbers();
   els.nextBtn.disabled = !state.completed.has(step.id);
   if (step.mascot) {
     els.mascotImg.src = step.mascot;
@@ -369,7 +519,14 @@ async function nextStep() {
     if (state.userEmail) {
       localStorage.setItem("python_lecture_user", JSON.stringify({ userName: state.userName, userEmail: state.userEmail }));
     }
-    window.location.href = `prototype.html?lesson=${nextLesson}`;
+    const hasNext = await fetch(`learning_steps_lesson${nextLesson}.json`, { method: "HEAD", cache: "no-store" })
+      .then((r) => r.ok)
+      .catch(() => false);
+    if (hasNext) {
+      window.location.href = `prototype.html?lesson=${nextLesson}`;
+    } else {
+      showCompletion();
+    }
     return;
   }
   renderStep(nextIndex);
@@ -391,6 +548,7 @@ function resetStep() {
     els.codeInput.value = step.validation?.type === "standalone" ? "" : getPrefixBefore(state.currentIndex);
   }
   updateCodeGhost();
+  updateLineNumbers();
   setConsole("", "");
   setResult("idle", "다시 입력", "천천히 한 글자씩 입력해보세요. 오타가 나도 괜찮습니다.");
   els.codeInput.focus();
@@ -403,10 +561,6 @@ function getCurrentStep() {
 function isEditStep(step) {
   const mode = step.validation?.editMode;
   return mode === "modify" || mode === "delete";
-}
-
-function normalizeCode(code) {
-  return code.replace(/\r/g, "").trim().replace(/[ \t]+/g, " ");
 }
 
 function normalizeLineSpaces(line) {
@@ -624,14 +778,55 @@ function looksLikeTypo(userCode, expectedCode) {
   return Math.abs(userCode.length - expectedCode.length) <= 3 || userCode.split(" ")[0] !== expectedCode.split(" ")[0];
 }
 
+// Normalize code into comparable lines (trim, collapse inner spaces, drop blanks/comments).
+function normalizeForSearch(code) {
+  return code
+    .replace(/\r/g, "")
+    .split("\n")
+    .map((line) => normalizeLineSpaces(line.trim()))
+    .filter((line) => line.length > 0 && !line.startsWith("#"))
+    .join("\n");
+}
+
 function findCommonError(step, rawCode) {
-  const prefix = getPrefixBefore(state.currentIndex);
-  const currentPart = rawCode.startsWith(prefix) ? rawCode.slice(prefix.length) : rawCode;
-  return step.commonErrors.find((error) => normalizeCode(error.pattern) === normalizeCode(currentPart.trim()));
+  if (!step.commonErrors) return null;
+  const haystack = normalizeForSearch(rawCode);
+  return step.commonErrors.find((error) => {
+    const needle = normalizeForSearch(error.pattern);
+    return needle && haystack.includes(needle);
+  }) || null;
+}
+
+// Find the first line where the student's code diverges from the expected code.
+function firstDiffLine(userBlock, expectedBlock) {
+  const u = userBlock ? userBlock.split("\n") : [];
+  const e = expectedBlock ? expectedBlock.split("\n") : [];
+  const count = Math.max(u.length, e.length);
+  for (let i = 0; i < count; i++) {
+    if (u[i] !== e[i]) {
+      return { expected: e[i] ?? null, got: u[i] ?? null };
+    }
+  }
+  return null;
 }
 
 function buildGenericError(step) {
-  return `코드 전체가 이번 단계까지의 모양과 조금 달라요. 새로 입력할 줄은 \`${step.expectedCode}\`입니다. 이전 단계 코드가 지워지지 않았는지, 대소문자, 따옴표, 괄호, 점(.)을 차례로 확인해보세요.`;
+  const expected = normalizeCodeBlock(getExpectedCodeThrough(state.currentIndex));
+  const user = normalizeCodeBlock(els.codeInput.value);
+  const diff = firstDiffLine(user, expected);
+
+  let detail;
+  if (diff && diff.expected && diff.got) {
+    detail = `이 줄을 확인해보세요 —\n  내가 쓴 줄: ${diff.got}\n  정답 모양: ${diff.expected}`;
+  } else if (diff && diff.expected) {
+    detail = `이 줄이 아직 빠졌어요 —\n  ${diff.expected}`;
+  } else if (diff && diff.got) {
+    detail = `이 줄은 이번 단계에 필요 없어요 —\n  ${diff.got}`;
+  } else {
+    detail = "거의 다 왔어요! 들여쓰기나 공백을 다시 확인해보세요.";
+  }
+
+  return `코드가 이번 단계 정답과 조금 달라요.\n${detail}\n\n'힌트 보기'를 누르면 이번 단계에 입력할 줄 전체를 볼 수 있어요.`;
 }
 
 function awardSuccessBadges() {
@@ -661,6 +856,8 @@ const BADGE_CONFIG = {
   "첫 창 완성":      "badges/badge_first_window.png",
   "Lesson 1 완성자": "badges/badge_lesson1_complete.png",
   "Lesson 2 완성자": "badges/badge_lesson2_complete.png",
+  "Lesson 3 완성자": "badges/badge_lesson3_complete.png",
+  "Lesson 4 완성자": "badges/badge_lesson4_complete.png",
 };
 
 function renderBadges() {
@@ -716,8 +913,13 @@ function showCompletion() {
     .replace("{runCount}", state.runCount)
     .replace("{typoCount}", state.typoCount)
     .replace("{bestSuccessStreak}", state.bestSuccessStreak);
+  els.completionTitle.textContent = state.data.lessonCompletion?.title || `Lesson ${LESSON_NUM} 완성!`;
   els.completionSummary.textContent = summary;
   els.completionModal.hidden = false;
+
+  // 방금 레슨을 끝냈으니 탭을 새로 그려 다음 레슨 잠금을 해제한다
+  state.lessonsCache = null;
+  buildLessonTabs();
 }
 
 function setResult(stateName, title, message) {
@@ -734,7 +936,9 @@ function formatExplanation(text) {
 }
 
 function formatInlineCode(text) {
-  return text.replace(/`([^`]+)`/g, "<code>$1</code>");
+  return text
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
 }
 
 function escapeHtml(value) {
@@ -756,16 +960,50 @@ els.inputEmail.addEventListener("keydown", (e) => { if (e.key === "Enter") handl
 els.inputName.addEventListener("keydown", (e) => { if (e.key === "Enter") els.inputEmail.focus(); });
 els.resumeBtn.addEventListener("click", () => startLesson(loadProgress(state.userEmail)));
 els.restartBtn.addEventListener("click", () => {
-  localStorage.removeItem(`python_lecture_${LESSON_NUM}_${state.userEmail}`);
+  const store = readUserStore(state.userEmail);
+  if (store?.lessons) {
+    delete store.lessons[LESSON_NUM];
+    writeUserStore(state.userEmail, store);
+  }
   startLesson(null);
 });
 els.closeCompletionBtn.addEventListener("click", () => {
   els.completionModal.hidden = true;
 });
-els.codeInput.addEventListener("input", updateCodeGhost);
+els.codeInput.addEventListener("input", () => {
+  updateCodeGhost();
+  updateLineNumbers();
+});
 els.codeInput.addEventListener("scroll", syncGhostScroll);
+els.codeInput.addEventListener("keydown", handleEditorTab);
+
+function handleEditorTab(event) {
+  if (event.key !== "Tab") return;
+  event.preventDefault();
+  const input = els.codeInput;
+  const start = input.selectionStart;
+  const end = input.selectionEnd;
+  input.value = `${input.value.slice(0, start)}    ${input.value.slice(end)}`;
+  input.selectionStart = input.selectionEnd = start + 4;
+  updateCodeGhost();
+  updateLineNumbers();
+}
+
+function updateLineNumbers() {
+  if (!els.lineNumbers) return;
+  const lineCount = els.codeInput.value.split("\n").length;
+  let text = "";
+  for (let i = 1; i <= lineCount; i++) {
+    text += `${i}\n`;
+  }
+  els.lineNumbers.textContent = text;
+  syncGhostScroll();
+}
+
 function syncGhostScroll() {
-  els.codeGhost.style.top = `-${els.codeInput.scrollTop}px`;
+  const { scrollLeft, scrollTop } = els.codeInput;
+  els.codeGhost.style.transform = `translate(${-scrollLeft}px, ${-scrollTop}px)`;
+  if (els.lineNumbers) els.lineNumbers.style.transform = `translateY(${-scrollTop}px)`;
 }
 
 init();

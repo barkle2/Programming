@@ -9,8 +9,8 @@
 <body>
   <header class="topbar">
     <div>
-      <p class="eyebrow">Lesson 1</p>
-      <h1>코드로 계산기 만들기</h1>
+      <p class="eyebrow" id="lessonEyebrow">Lesson 1</p>
+      <h1 id="courseHeading">코드로 계산기 만들기</h1>
     </div>
     <div class="topbar-badges" aria-label="획득 배지">
       <span class="topbar-badges-label">배지</span>
@@ -34,6 +34,7 @@
 
   <main class="app-shell">
     <aside class="lesson-list" aria-label="학습 단계">
+      <nav class="lesson-tabs" id="lessonTabs" aria-label="레슨 이동"></nav>
       <div class="panel-head">
         <h2>단계</h2>
         <span id="lessonGoal"></span>
@@ -69,8 +70,9 @@
         <button type="button" id="resetStepBtn">다시 입력</button>
       </div>
       <div class="editor-wrap">
+        <div id="lineNumbers" class="line-numbers" aria-hidden="true"></div>
         <pre id="codeGhost" aria-hidden="true"></pre>
-        <textarea id="codeInput" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+        <textarea id="codeInput" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off"></textarea>
       </div>
 
       <div class="console-wrap" id="consoleWrap" data-state="idle">
@@ -104,7 +106,7 @@
   <div class="login" id="loginModal">
     <div class="login-card">
       <div id="loginScreen">
-        <p class="eyebrow">Lesson 1</p>
+        <p class="eyebrow" id="loginEyebrow">Lesson 1</p>
         <h2>코드로 계산기 만들기</h2>
         <p class="login-desc">이름과 이메일을 입력하면 진행 상황이 저장됩니다.</p>
         <div class="login-form">
@@ -130,7 +132,7 @@
   <div class="completion" id="completionModal" hidden>
     <div class="completion-card">
       <p class="eyebrow">Lesson Complete</p>
-      <h2>Lesson 1 완성!</h2>
+      <h2 id="completionTitle">Lesson 1 완성!</h2>
       <p id="completionSummary"></p>
       <button type="button" id="closeCompletionBtn">계속 살펴보기</button>
     </div>

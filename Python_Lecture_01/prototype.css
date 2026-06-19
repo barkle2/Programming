@@ -23,9 +23,9 @@ body {
   font-family: "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   color: var(--ink);
   background:
-    linear-gradient(rgba(245, 247, 250, 0.92), rgba(245, 247, 250, 0.92)),
-    url("https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1800&q=80");
-  background-size: cover;
+    radial-gradient(1200px 600px at 15% -10%, #e6f4f1 0%, transparent 60%),
+    radial-gradient(1000px 500px at 110% 10%, #e8eefc 0%, transparent 55%),
+    var(--paper);
   background-attachment: fixed;
 }
 
@@ -146,6 +146,52 @@ h3 {
   font-size: 13px;
   line-height: 1.45;
   color: var(--muted);
+}
+
+.lesson-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 12px 12px 0;
+}
+
+.lesson-tab {
+  min-height: 34px;
+  min-width: 44px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.lesson-tab:hover:not(.active) {
+  border-color: var(--accent);
+  color: var(--accent-dark);
+}
+
+.lesson-tab.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+  cursor: default;
+}
+
+.lesson-tab.done:not(.active) {
+  border-color: #86efac;
+  color: var(--ok);
+}
+
+.lesson-tab.done::after {
+  content: " ✓";
+}
+
+.lesson-tab.locked {
+  color: #98a2b3;
+  cursor: not-allowed;
 }
 
 #stepList {
@@ -322,17 +368,38 @@ code {
   overflow: hidden;
 }
 
+.line-numbers {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 52px;
+  height: 100%;
+  margin: 0;
+  padding: 14px 8px 14px 0;
+  text-align: right;
+  color: #4d5966;
+  background: #0b1220;
+  font: 16px/1.55 Consolas, "Cascadia Mono", monospace;
+  white-space: pre;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  border-right: 1px solid #1f2937;
+  box-sizing: border-box;
+  z-index: 1;
+}
+
 #codeGhost {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   margin: 0;
-  padding: 14px;
+  padding: 14px 14px 14px 52px;
   color: #738094;
   font: 16px/1.55 Consolas, "Cascadia Mono", monospace;
-  white-space: pre-wrap;
-  word-break: break-word;
+  white-space: pre;
+  overflow: hidden;
   pointer-events: none;
 }
 
@@ -345,7 +412,7 @@ textarea {
   width: 100%;
   min-height: 380px;
   height: 54vh;
-  padding: 14px;
+  padding: 14px 14px 14px 52px;
   border: 0;
   border-radius: 0;
   outline: none;
@@ -353,6 +420,8 @@ textarea {
   background: transparent;
   color: #e5eef8;
   font: 16px/1.55 Consolas, "Cascadia Mono", monospace;
+  white-space: pre;
+  overflow: auto;
 }
 
 textarea:focus {
@@ -434,6 +503,8 @@ button:disabled {
   font-size: 16px;
   line-height: 1.55;
   color: var(--muted);
+  white-space: pre-line;
+  word-break: break-word;
 }
 
 .console-wrap {

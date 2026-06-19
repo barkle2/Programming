@@ -21,7 +21,7 @@
       "id": "L2-01",
       "title": "for 반복문 맛보기",
       "concepts": ["for", "range()", "print()"],
-      "explanation": "for 반복문은 리스트나 range()처럼 여러 값을 담은 것을 하나씩 꺼내어 반복 실행합니다. range(1, 10)은 1부터 9까지의 숫자를 순서대로 만들어 줍니다. 반복문 안쪽 코드는 반드시 4칸 들여쓰기로 구분해야 합니다.",
+      "explanation": "버튼이 12개라면 버튼 생성 코드를 12번 쓸 수도 있지만, 그건 너무 비효율적입니다. for 반복문은 같은 작업을 지정한 횟수만큼 자동으로 반복해 줍니다.\n\nrange(1, 10)은 '1부터 9까지의 숫자 목록'을 만들어 줍니다. Python에서 range의 마지막 숫자는 포함되지 않는다는 규칙이 있습니다. range(1, 10)이라고 써도 10은 빠지고 1~9만 만들어집니다. for i in range(1, 10): 라고 쓰면, i가 1, 2, 3, ... 9로 바뀌면서 아래 코드가 9번 실행됩니다.\n\n미션에서 사용하는 print(n, '*', i, '=', n*i)에서 '*'와 '='는 따옴표로 감쌌습니다. 이는 곱하기 기호와 등호를 문자 그대로 출력하기 위해서입니다. n*i는 따옴표 없이 쓰는데, 이건 n과 i를 실제로 곱하는 연산입니다. 따옴표가 있으면 텍스트, 없으면 연산이 됩니다.\n\n반복문을 쓸 때 꼭 지켜야 할 규칙이 두 가지 있습니다. 첫째, for ... : 줄 끝에 콜론(:)을 반드시 붙여야 합니다. 콜론은 '이 아래가 반복할 내용입니다'라는 신호입니다. 둘째, 반복할 코드는 4칸 들여쓰기로 작성합니다. 들여쓰기가 맞지 않으면 IndentationError가 발생하니 주의하세요.",
       "mission": "구구단 5단을 출력하는 프로그램을 작성하세요. n=5로 고정하고, range(1, 10)을 이용해 i가 1부터 9까지 반복되도록 합니다. print로 n, '*', i, '=', n*i 형태가 출력되어야 합니다.",
       "expectedCode": "# 구구단 n단 출력하기\nn=5\nfor i in range(1, 10):\n    print(n, '*', i, '=', n * i)",
       "validation": {
@@ -41,13 +41,13 @@
       ],
       "successMessage": "반복문 완성! 같은 패턴으로 12개 버튼도 한 번에 만들 수 있어요.",
       "mascot": "images/고드래곤_보통.png",
-      "mascotSpeech": "반복문 하나로 9줄짜리 표를 뚝딱! 이걸 버튼에 쓰면 어떨까요?"
+      "mascotSpeech": "9번 써야 할 코드를 딱 2줄로! 콜론이랑 들여쓰기만 틀리지 마, 그게 전부야."
     },
     {
       "id": "L2-02",
       "title": "Frame으로 구조 잡기",
       "concepts": ["Frame", "columnspan", "코드 리팩터링"],
-      "explanation": "Frame은 버튼 같은 위젯을 하나의 그룹으로 묶어주는 컨테이너입니다. columnspan=2는 엔트리가 두 열에 걸쳐 배치되도록 합니다. L1에서 만든 개별 button1/2/3은 이제 반복문으로 대체할 것이므로 삭제합니다.",
+      "explanation": "Frame(프레임)은 위젯들을 하나의 그룹으로 묶어 담는 투명한 상자라고 생각하면 됩니다. 계산기 버튼 12개를 main_win 안에 직접 배치하면 위치 계산이 복잡해집니다. 대신 Frame을 하나 만들어 그 안에 버튼을 채우면, Frame 자체를 창 안에 한 번만 배치하면 됩니다.\n\ncolumnspan=2는 display_entry가 두 열을 가로질러 늘어나도록 합니다. 이 강의에서 계산기는 번호 버튼(num_frame, column=0)과 연산자 버튼(op_frame, column=1) 두 열로 구성됩니다. 엔트리가 이 두 열을 모두 덮어야 화면 전체 폭을 채울 수 있으므로 columnspan=2입니다.\n\nL1에서 만든 button1, button2, button3은 이번 단계부터 반복문으로 대체할 것입니다. 코드를 더 나은 방식으로 다시 쓰는 것을 리팩터링(refactoring)이라고 합니다. 지금 button1~3을 지우는 것이 바로 리팩터링의 첫 걸음입니다.",
       "mission": "L1 코드를 아래와 같이 수정하세요.\n① display_entry 주석에 '(column span 추가)' 추가, grid에 columnspan=2 추가\n② button1, button2, button3 관련 코드(주석 포함) 삭제\n③ mainloop() 바로 위에 num_frame 생성 및 grid 배치 코드 추가 (row=1, column=0, sticky='W')",
       "expectedCode": "# Tkinter 라이브러리 호출\nimport tkinter as tk\n\n# 메인 윈도우 생성\nmain_win = tk.Tk()\n\n# 메인 윈도우 이름 설정\nmain_win.title(\"DIY 계산기\")\n\n# 디스플레이 엔트리 생성 및 배치(column span 추가)\ndisplay_entry = tk.Entry(main_win, width=45, bg=\"light green\")\ndisplay_entry.grid(row=0, column=0, columnspan=2)\n\n# 번호 프레임 생성 및 배치\nnum_frame = tk.Frame(main_win)\nnum_frame.grid(row=1, column=0, sticky='W')\n\n# 메인 윈도우 반복 명령\nmain_win.mainloop()",
       "validation": {
@@ -69,14 +69,14 @@
       ],
       "successMessage": "리팩터링 완료! 이제 num_frame에 반복문으로 버튼을 채워봐요.",
       "mascot": "images/고드래곤_보통.png",
-      "mascotSpeech": "Frame으로 묶고, 개별 버튼은 삭제! 반복문이 대신할 거예요."
+      "mascotSpeech": "button1, button2, button3 삭제! 아깝다고? 반복문이 훨씬 더 잘 만들어 줄 거야."
     },
     {
       "id": "L2-03",
       "title": "반복문으로 번호 버튼 만들기",
       "concepts": ["list", "for", "row/column 자동 계산"],
-      "explanation": "num_list에 버튼 텍스트를 순서대로 담고, for 반복문으로 하나씩 꺼내어 버튼을 만듭니다. col_tmp가 2를 넘으면 다음 줄로 넘어가도록 if 문으로 제어합니다. 이 패턴 하나로 12개 버튼이 3열로 배치됩니다.",
-      "mission": "num_frame 배치 코드 아래에 다음 내용을 추가하세요.\n① num_list 정의 (12개 값, 3개씩 줄 바꿈 형태 유지)\n② row_tmp=0, col_tmp=0 초기화\n③ for num_text in num_list: 반복문으로 num_button 생성 및 grid 배치\n④ col_tmp를 1씩 증가시키고, 2를 초과하면 다음 줄로 이동",
+      "explanation": "list(리스트)는 여러 값을 순서대로 담아두는 그릇입니다. ['7', '8', '9', ...] 처럼 대괄호 안에 값을 쉼표로 구분해서 나열합니다. for num_text in num_list: 라고 쓰면, num_text가 리스트의 값을 하나씩 차례로 받아 반복문 안쪽 코드를 실행합니다.\n\nrow_tmp와 col_tmp는 버튼을 어느 행(row), 어느 열(column)에 놓을지 기억하는 임시 변수입니다. 버튼을 하나 배치할 때마다 col_tmp를 1씩 늘립니다. 그런데 3열 배치이므로 col_tmp가 2를 넘으면 — 즉 3이 되는 순간 — 다음 줄로 넘어가야 합니다. 열 번호는 0부터 시작하므로 3열은 0, 1, 2입니다. col_tmp > 2 조건은 '0, 1, 2를 채웠으니 이제 줄을 바꾼다'는 의미입니다. col_tmp == 3으로 써도 대부분 작동하지만, > 2는 3 이상인 모든 경우를 잡아주는 더 안전한 표현입니다. col_tmp > 3으로 쓰면 4열이 되어버립니다.\n\n이 패턴 하나로 12개 버튼이 3열씩, 4행으로 자동 배치됩니다.",
+      "mission": "num_frame 배치 코드 아래에 다음 내용을 추가하세요.\n① num_list 정의 (12개 값 — 코드 가독성을 위해 3개씩 줄 나눠 작성)\n② row_tmp=0, col_tmp=0 초기화\n③ for num_text in num_list: 반복문으로 num_button 생성 및 grid 배치\n④ col_tmp를 1씩 증가시키고, 2를 초과하면 다음 줄로 이동",
       "expectedCode": "# Tkinter 라이브러리 호출\nimport tkinter as tk\n\n# 메인 윈도우 생성\nmain_win = tk.Tk()\n\n# 메인 윈도우 이름 설정\nmain_win.title(\"DIY 계산기\")\n\n# 디스플레이 엔트리 생성 및 배치(column span 추가)\ndisplay_entry = tk.Entry(main_win, width=45, bg=\"light green\")\ndisplay_entry.grid(row=0, column=0, columnspan=2)\n\n# 번호 프레임 생성 및 배치\nnum_frame = tk.Frame(main_win)\nnum_frame.grid(row=1, column=0, sticky='W')\n\n# 넣고 싶은 번호 리스트(순서대로)\nnum_list = ['7', '8', '9',\n            '4', '5', '6',\n            '1', '2', '3',\n            '0', '.', '=']\n\n# 반복문에서 사용할 임시 변수\nrow_tmp = 0\ncol_tmp = 0\n\n# num_text는 num_list 값을 순서대로 갖게 된다\nfor num_text in num_list:\n\n    # Button을 생성하고, row_tmp, col_tmp 위치에 배치\n    num_button = tk.Button(num_frame, text=num_text, width=5)\n    num_button.grid(row=row_tmp, column=col_tmp)\n\n    # 버튼을 배치했으면 다음 칸으로 이동하도록 col_tmp에 1 더한다\n    col_tmp = col_tmp + 1\n    # col_tmp가 2보다 크다면 다음 줄로 이동한다\n    if col_tmp > 2:\n        col_tmp = 0\n        row_tmp = row_tmp + 1\n\n# 메인 윈도우 반복 명령\nmain_win.mainloop()",
       "validation": {
         "type": "multi-line-exact",
@@ -95,13 +95,13 @@
       ],
       "successMessage": "번호판 완성! 반복문 하나로 12개 버튼을 만들었어요.",
       "mascot": "images/고드래곤_놀람.png",
-      "mascotSpeech": "12개 버튼을 단 15줄로! 이제 연산자 버튼도 같은 방식으로 해봐요."
+      "mascotSpeech": "리스트에서 꺼내고, 위치 계산하고, 줄 바꾸고 — 이 세 가지가 반복문의 핵심이야. 외우지 말고 흐름을 이해해 봐!"
     },
     {
       "id": "L2-04",
       "title": "연산자 버튼 추가하기",
       "concepts": ["Frame", "list", "for"],
-      "explanation": "번호 버튼과 같은 패턴으로 연산자 버튼을 만듭니다. op_frame은 num_frame 오른쪽(column=1)에 배치하고, 8개 연산자는 2열로 구성하므로 col_tmp > 1 조건을 사용합니다.",
+      "explanation": "L2-03에서 번호 버튼을 만든 패턴을 그대로 다시 씁니다. 달라지는 것은 세 가지뿐입니다. 첫째, op_frame은 num_frame 오른쪽인 column=1에 배치하고, sticky='E'로 셀의 오른쪽(East)에 붙여 정렬합니다. num_frame은 sticky='W'(왼쪽 정렬), op_frame은 sticky='E'(오른쪽 정렬)로 해야 번호판과 연산자판이 서로 맞닿은 계산기 모양이 됩니다. 둘째, op_list에는 연산자 8개가 담깁니다. 셋째, 2열 배치이므로 col_tmp > 1 조건으로 줄을 바꿉니다(열 번호 0, 1을 채우면 바로 다음 줄).\n\n같은 패턴을 두 번 반복하는 것이 낯설 수 있습니다. 하지만 이것은 의도된 연습입니다. 패턴을 두 번 써보면 '아, 이 흐름이 이런 거구나'라는 감각이 생깁니다. L2-03에서 헷갈렸던 부분이 이번에는 좀 더 자연스럽게 느껴질 것입니다.",
       "mission": "for num_text 반복문 종료 후, mainloop() 위에 다음을 추가하세요.\n① op_frame 생성 및 grid 배치 (row=1, column=1, sticky='E')\n② op_list 정의 (8개 값, 2개씩 줄 바꿈 형태 유지)\n③ row_tmp=0, col_tmp=0 초기화\n④ for op_text in op_list: 반복문으로 op_button 생성 및 grid 배치\n⑤ col_tmp 1씩 증가, 1 초과시 다음 줄로 이동",
       "expectedCode": "# Tkinter 라이브러리 호출\nimport tkinter as tk\n\n# 메인 윈도우 생성\nmain_win = tk.Tk()\n\n# 메인 윈도우 이름 설정\nmain_win.title(\"DIY 계산기\")\n\n# 디스플레이 엔트리 생성 및 배치(column span 추가)\ndisplay_entry = tk.Entry(main_win, width=45, bg=\"light green\")\ndisplay_entry.grid(row=0, column=0, columnspan=2)\n\n# 번호 프레임 생성 및 배치\nnum_frame = tk.Frame(main_win)\nnum_frame.grid(row=1, column=0, sticky='W')\n\n# 넣고 싶은 번호 리스트(순서대로)\nnum_list = ['7', '8', '9',\n            '4', '5', '6',\n            '1', '2', '3',\n            '0', '.', '=']\n\n# 반복문에서 사용할 임시 변수\nrow_tmp = 0\ncol_tmp = 0\n\n# num_text는 num_list 값을 순서대로 갖게 된다\nfor num_text in num_list:\n\n    # Button을 생성하고, row_tmp, col_tmp 위치에 배치\n    num_button = tk.Button(num_frame, text=num_text, width=5)\n    num_button.grid(row=row_tmp, column=col_tmp)\n\n    # 버튼을 배치했으면 다음 칸으로 이동하도록 col_tmp에 1 더한다\n    col_tmp = col_tmp + 1\n    # col_tmp가 2보다 크다면 다음 줄로 이동한다\n    if col_tmp > 2:\n        col_tmp = 0\n        row_tmp = row_tmp + 1\n\n# 연산자 프레임 생성 및 배치\nop_frame = tk.Frame(main_win)\nop_frame.grid(row=1, column=1, sticky='E')\n\n# 넣고 싶은 연산자 리스트(순서대로)\nop_list = ['*', '/',\n           '+', '-',\n           '(', ')',\n           'C', 'AC']\n\n# 반복문에서 사용할 임시 변수\nrow_tmp = 0\ncol_tmp = 0\n\n# op_text는 op_list 값을 순서대로 갖게 된다\nfor op_text in op_list:\n\n    # Button을 생성하고, row_tmp, col_tmp 위치에 배치\n    op_button = tk.Button(op_frame, text=op_text, width=5)\n    op_button.grid(row=row_tmp, column=col_tmp)\n\n    # 버튼을 배치했으면 다음 칸으로 이동하도록 col_tmp에 1 더한다\n    col_tmp = col_tmp + 1\n    # col_tmp가 1보다 크다면 다음 줄로 이동한다\n    if col_tmp > 1:\n        col_tmp = 0\n        row_tmp = row_tmp + 1\n\n# 메인 윈도우 반복 명령\nmain_win.mainloop()",
       "validation": {
@@ -121,14 +121,14 @@
       ],
       "successMessage": "계산기 버튼이 모두 완성! 이제 버튼 클릭 이벤트를 연결해봐요.",
       "mascot": "images/고드래곤_보통.png",
-      "mascotSpeech": "번호판 + 연산자판 완성! 이제 누르면 뭔가 일어나야겠죠?"
+      "mascotSpeech": "L2-03이랑 거의 똑같지? 패턴이 손에 익는 게 느껴지지 않아? 이제 버튼을 누르면 뭔가 일어나야 할 것 같은데..."
     },
     {
       "id": "L2-05",
       "title": "버튼 클릭 이벤트 연결하기",
       "concepts": ["command", "def", "기본값 인수(default argument)"],
-      "explanation": "Button의 command 파라미터에 함수를 지정하면 클릭 시 실행됩니다. 반복문 안에서 def cmd_tmp(key_input=num_text)처럼 기본값 인수를 사용하면, 클릭 시점이 아닌 버튼 생성 시점의 값을 캡처할 수 있습니다.",
-      "mission": "num_list 반복문과 op_list 반복문 각각에 아래 내용을 추가·수정하세요.\n① num_button 생성 줄 바로 위에 def cmd_tmp(key_input=num_text): 와 button_click(key_input) 추가\n② num_button = tk.Button(...) 줄에 command=cmd_tmp 파라미터 추가\n③ op_button도 동일하게 def cmd_tmp(key_input=op_text): 와 button_click(key_input) 추가\n④ op_button = tk.Button(...) 줄에 command=cmd_tmp 파라미터 추가",
+      "explanation": "지금까지 버튼을 눌러도 아무 반응이 없었습니다. 버튼 모양만 있고 클릭해도 아무것도 일어나지 않았죠. 이번 단계에서 드디어 버튼에 기능을 연결합니다.\n\nButton의 command 파라미터(매개변수)에 함수를 지정하면, 버튼을 클릭할 때 그 함수가 자동으로 실행됩니다. 예를 들어 command=my_func 이라고 쓰면 클릭 시 my_func()이 호출됩니다.\n\n여기서 def(define의 줄임말)가 처음 등장합니다. def는 '함수를 직접 정의한다'는 뜻입니다. 지금까지는 tk.Button() 처럼 이미 만들어진 함수를 사용했습니다. 이번에는 직접 함수를 만드는 것입니다.\n\n그런데 반복문 안에서 command=num_text처럼 값을 직접 넣으면 문제가 생깁니다. 반복문이 끝날 때 num_text는 마지막 값만 기억하기 때문에 모든 버튼이 같은 값을 가리키게 됩니다. 이를 해결하는 방법이 기본값 인수(default argument) 트릭입니다. def cmd_tmp(key_input=num_text): 처럼 쓰면, 함수가 만들어지는 순간의 num_text 값이 key_input에 고정됩니다. 버튼마다 자신의 값을 제대로 기억하는 것입니다.",
+      "mission": "num_list 반복문과 op_list 반복문 각각에 아래 내용을 추가·수정하세요.\n⓪ import 줄 바로 아래에 buttonClick 함수 정의 추가 (def buttonClick(key): 와 display_entry.insert(tk.END, key))\n① num_button 생성 줄 바로 위에 def cmd_tmp(key_input=num_text): 와 button_click(key_input) 추가\n② num_button = tk.Button(...) 줄에 command=cmd_tmp 파라미터 추가\n③ op_button도 동일하게 def cmd_tmp(key_input=op_text): 와 button_click(key_input) 추가\n④ op_button = tk.Button(...) 줄에 command=cmd_tmp 파라미터 추가",
       "expectedCode": "# Tkinter 라이브러리 호출\nimport tkinter as tk\n\n# 버튼 클릭시 실행 함수\ndef buttonClick(key):\n    # 눌러진 버튼 텍스트 값을 디스플레이에 추가\n    display_entry.insert(tk.END, key)\n\n# 메인 윈도우 생성\nmain_win = tk.Tk()\n\n# 메인 윈도우 이름 설정\nmain_win.title(\"DIY 계산기\")\n\n# 디스플레이 엔트리 생성 및 배치(column span 추가)\ndisplay_entry = tk.Entry(main_win, width=45, bg=\"light green\")\ndisplay_entry.grid(row=0, column=0, columnspan=2)\n\n# 번호 프레임 생성 및 배치\nnum_frame = tk.Frame(main_win)\nnum_frame.grid(row=1, column=0, sticky='W')\n\n# 넣고 싶은 번호 리스트(순서대로)\nnum_list = ['7', '8', '9',\n            '4', '5', '6',\n            '1', '2', '3',\n            '0', '.', '=']\n\n# 반복문에서 사용할 임시 변수\nrow_tmp = 0\ncol_tmp = 0\n\n# num_text는 num_list 값을 순서대로 갖게 된다\nfor num_text in num_list:\n\n    # 버튼을 눌렀을 때 cmd_tmp가 실행된다\n    def cmd_tmp(key_input=num_text):\n        # num_text 값을 넘겨주면서 button_click을 호출\n        button_click(key_input)\n\n    # Button을 생성하고, row_tmp, col_tmp 위치에 배치\n    num_button = tk.Button(num_frame, text=num_text, width=5, command=cmd_tmp)\n    num_button.grid(row=row_tmp, column=col_tmp)\n\n    # 버튼을 배치했으면 다음 칸으로 이동하도록 col_tmp에 1 더한다\n    col_tmp = col_tmp + 1\n    # col_tmp가 2보다 크다면 다음 줄로 이동한다\n    if col_tmp > 2:\n        col_tmp = 0\n        row_tmp = row_tmp + 1\n\n# 연산자 프레임 생성 및 배치\nop_frame = tk.Frame(main_win)\nop_frame.grid(row=1, column=1, sticky='E')\n\n# 넣고 싶은 연산자 리스트(순서대로)\nop_list = ['*', '/',\n           '+', '-',\n           '(', ')',\n           'C', 'AC']\n\n# 반복문에서 사용할 임시 변수\nrow_tmp = 0\ncol_tmp = 0\n\n# op_text는 op_list 값을 순서대로 갖게 된다\nfor op_text in op_list:\n\n    # 버튼을 눌렀을 때 cmd_tmp가 실행된다\n    def cmd_tmp(key_input=op_text):\n        # op_text 값을 넘겨주면서 button_click을 호출\n        button_click(key_input)\n\n    # Button을 생성하고, row_tmp, col_tmp 위치에 배치\n    op_button = tk.Button(op_frame, text=op_text, width=5, command=cmd_tmp)\n    op_button.grid(row=row_tmp, column=col_tmp)\n\n    # 버튼을 배치했으면 다음 칸으로 이동하도록 col_tmp에 1 더한다\n    col_tmp = col_tmp + 1\n    # col_tmp가 1보다 크다면 다음 줄로 이동한다\n    if col_tmp > 1:\n        col_tmp = 0\n        row_tmp = row_tmp + 1\n\n# 메인 윈도우 반복 명령\nmain_win.mainloop()",
       "validation": {
         "type": "multi-line-exact",
@@ -153,7 +153,7 @@
       ],
       "successMessage": "클릭 이벤트 연결 완료! DIY 계산기의 버튼이 모두 살아났어요!",
       "mascot": "images/고드래곤_놀람.png",
-      "mascotSpeech": "기본값 인수 트릭으로 클릭 이벤트까지 연결! Lesson 2 완성!"
+      "mascotSpeech": "버튼을 클릭하면 드디어 숫자가 입력창에 나타나! 처음으로 살아있는 계산기가 됐어. 기본값 인수 트릭이 핵심이었다고!"
     }
   ],
   "lessonCompletion": {
