@@ -342,8 +342,9 @@ function renderStep(index) {
   updateCodeGhost();
   updateLineNumbers();
   els.nextBtn.disabled = !state.completed.has(step.id);
-  if (step.mascot) {
-    els.mascotImg.src = step.mascot;
+  const mascotSrc = getAllowedMascotSrc(step.mascot);
+  if (mascotSrc) {
+    els.mascotImg.src = mascotSrc;
     els.mascotImg.alt = "고드래곤";
     els.mascotBubble.textContent = step.mascotSpeech || "";
     els.mascotImg.closest(".mascot-wrap").hidden = false;
@@ -364,6 +365,14 @@ function renderStep(index) {
 
   els.codeInput.focus();
   updateStats();
+}
+
+function getAllowedMascotSrc(src) {
+  if (!src) return "";
+  const normalized = src.replace(/\\/g, "/");
+  const filename = normalized.split("/").pop();
+  if (!/^(고드래곤|기본버전)_\d{2}_.+\.(png|jpe?g|gif)$/i.test(filename)) return "";
+  return `mascot/${filename}`;
 }
 
 async function runCurrentStep() {
@@ -846,18 +855,18 @@ function awardTypoBadges() {
 }
 
 const BADGE_CONFIG = {
-  "첫 성공":         "badges/badge_first_success.png",
-  "3회 연속 성공":   "badges/badge_streak_3.png",
-  "5회 연속 성공":   "badges/badge_streak_5.png",
-  "7회 연속 성공":   "badges/badge_streak_7.png",
-  "불굴의 의지 I":   "badges/badge_iron_will_1.png",
-  "불굴의 의지 II":  "badges/badge_iron_will_2.png",
-  "불굴의 의지 III": "badges/badge_iron_will_3.png",
-  "첫 창 완성":      "badges/badge_first_window.png",
-  "Lesson 1 완성자": "badges/badge_lesson1_complete.png",
-  "Lesson 2 완성자": "badges/badge_lesson2_complete.png",
-  "Lesson 3 완성자": "badges/badge_lesson3_complete.png",
-  "Lesson 4 완성자": "badges/badge_lesson4_complete.png",
+  "첫 성공":         "badges/badge_first_success.svg",
+  "3회 연속 성공":   "badges/badge_streak_3.svg",
+  "5회 연속 성공":   "badges/badge_streak_5.svg",
+  "7회 연속 성공":   "badges/badge_streak_7.svg",
+  "불굴의 의지 I":   "badges/badge_iron_will_1.svg",
+  "불굴의 의지 II":  "badges/badge_iron_will_2.svg",
+  "불굴의 의지 III": "badges/badge_iron_will_3.svg",
+  "첫 창 완성":      "badges/badge_first_window.svg",
+  "Lesson 1 완성자": "badges/badge_lesson1_complete.svg",
+  "Lesson 2 완성자": "badges/badge_lesson2_complete.svg",
+  "Lesson 3 완성자": "badges/badge_lesson3_complete.svg",
+  "Lesson 4 완성자": "badges/badge_lesson4_complete.svg",
 };
 
 function renderBadges() {

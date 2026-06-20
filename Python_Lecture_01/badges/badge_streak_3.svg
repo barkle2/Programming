@@ -1,0 +1,14 @@
+<svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">3회 연속 성공 배지</title>
+  <desc id="desc">세 개의 점과 체크 표시가 있는 차분한 연속 성공 배지</desc>
+  <rect x="3.5" y="3.5" width="49" height="49" rx="12" fill="#EFF6FF"/>
+  <rect x="3.5" y="3.5" width="49" height="49" rx="12" stroke="#BFDBFE"/>
+  <path d="M16 32C21 24 27 36 34 24" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="16" cy="32" r="3.5" fill="#93C5FD"/>
+  <circle cx="25" cy="29" r="3.5" fill="#60A5FA"/>
+  <circle cx="34" cy="24" r="3.5" fill="#2563EB"/>
+  <circle cx="38" cy="37" r="8" fill="#0F766E"/>
+  <path d="M34.4 37.1L37 39.7L42 34.4" stroke="#FFFFFF" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="16" cy="15" r="6" fill="#2563EB"/>
+  <path d="M14.2 12.8H17.4L15.2 15.1C17.4 15.2 18.1 18 15.2 18.2" stroke="#FFFFFF" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

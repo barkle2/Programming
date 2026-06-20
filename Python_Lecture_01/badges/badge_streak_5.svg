@@ -1,0 +1,16 @@
+<svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">5회 연속 성공 배지</title>
+  <desc id="desc">다섯 개의 점과 체크 표시가 있는 차분한 연속 성공 배지</desc>
+  <rect x="3.5" y="3.5" width="49" height="49" rx="12" fill="#F0FDF4"/>
+  <rect x="3.5" y="3.5" width="49" height="49" rx="12" stroke="#BBF7D0"/>
+  <path d="M14 34C19 26 23 35 28 27C32 20 36 26 40 18" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="14" cy="34" r="3" fill="#86EFAC"/>
+  <circle cx="21" cy="30" r="3" fill="#4ADE80"/>
+  <circle cx="28" cy="27" r="3" fill="#22C55E"/>
+  <circle cx="34" cy="24" r="3" fill="#16A34A"/>
+  <circle cx="40" cy="18" r="3" fill="#15803D"/>
+  <circle cx="38" cy="37" r="8" fill="#0F766E"/>
+  <path d="M34.4 37.1L37 39.7L42 34.4" stroke="#FFFFFF" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="16" cy="15" r="6" fill="#16A34A"/>
+  <path d="M17.9 12.6H14.4L14 15.1C18.4 14.1 18.8 18.4 14.3 18" stroke="#FFFFFF" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -48,7 +48,7 @@
         }
       ],
       "successMessage": "버튼이 드디어 제 역할을 하기 시작했어요. '=' 버튼을 누르면 계산이 됩니다!",
-      "mascot": "고드래곤_01.jpg",
+      "mascot": "mascot/고드래곤_01_박수.jpg",
       "mascotSpeech": "if/elif/else는 위에서부터 검사해서 처음으로 맞는 조건 딱 하나만 실행해! 그리고 조건 쓸 때 '=='(두 개)랑 '='(하나) 절대 헷갈리지 마. 비교는 ==, 대입은 =야. eval()은 '3+4*2' 같은 문자열을 진짜로 계산해주는 함수고, 결과를 Entry에 넣으려면 str()로 문자열로 바꿔야 해!"
     },
     {
@@ -77,7 +77,7 @@
         }
       ],
       "successMessage": "이제 잘못된 수식을 눌러도 프로그램이 멈추지 않아요. 오류를 친절하게 처리하는 계산기가 됐습니다.",
-      "mascot": "고드래곤_04.jpg",
+      "mascot": "mascot/고드래곤_04_의문.jpg",
       "mascotSpeech": "잘못된 수식이 들어와도 프로그램이 죽으면 안 되잖아! try에서 일단 해보고, 오류가 나면 except로 와서 처리하는 거야. 그리고 update() → sleep() 순서 꼭 지켜야 해. 반대로 하면 오류 메시지가 화면에 안 나타나거든. result_tmp로 수식 미리 저장해두는 것도 잊지 마!"
     },
     {
@@ -106,7 +106,7 @@
         }
       ],
       "successMessage": "키보드 입력 함수가 추가됐어요. 이제 키보드로도 계산기를 쓸 수 있는 준비가 됐어요.",
-      "mascot": "고드래곤_07.gif",
+      "mascot": "mascot/고드래곤_08_안녕.jpg",
       "mascotSpeech": "bind('<Key>', inputKey)로 키보드랑 함수를 연결했어! 키를 누르면 Tkinter가 key 정보를 자동으로 만들어서 inputKey에 넘겨줘. key.char가 눌린 글자고, 엔터는 '\\r'이야. 아직 else: 가 모든 키를 받아들이고 있는데, 다음 단계에서 허용된 키만 걸러낼 거야!"
     },
     {
@@ -135,7 +135,7 @@
         }
       ],
       "successMessage": "키보드로도 계산기를 쓸 수 있게 됐어요! key_list 덕분에 허용된 키만 입력됩니다.",
-      "mascot": "고드래곤_08.png",
+      "mascot": "mascot/고드래곤_09_아하.jpg",
       "mascotSpeech": "else: 를 elif key.char in key_list: 로 바꿨어! num_list + op_list로 합치고, remove()로 따로 처리하는 것들을 빼면 key_list 완성. 'key.char in key_list'로 허용된 키인지 확인하는 거야. in은 목록 안에 있으면 True, 없으면 False야. 리스트를 맨 위로 옮긴 건 리팩터링이고!"
     },
     {
@@ -164,7 +164,7 @@
         }
       ],
       "successMessage": "Lesson 3 완성! 계산기가 키보드와 마우스 모두 지원하고, 입력창 보호까지 갖춘 완전한 프로그램이 됐어요.",
-      "mascot": "고드래곤_10.jpg",
+      "mascot": "mascot/기본버전_04_축하.png",
       "mascotSpeech": "함수 시작에 NORMAL로 풀고, 끝에 readonly로 다시 잠가! 그래야 버튼이나 키보드 함수를 통해서만 값이 바뀌고 직접 타이핑은 막혀. tk.NORMAL은 상수라 그냥 쓰고, readonly는 따옴표 붙인 문자열로 써야 하는 거 기억해! Lesson 3 완성 진짜 축하해!!",
       "completionBadges": ["Lesson 3 완성자"]
     }

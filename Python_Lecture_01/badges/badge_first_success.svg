@@ -1,0 +1,15 @@
+<svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">첫 성공 배지</title>
+  <desc id="desc">작은 코드 창과 체크 표시가 있는 차분한 청록색 학습 성취 배지</desc>
+  <rect x="3.5" y="3.5" width="49" height="49" rx="12" fill="#ECFDF5"/>
+  <rect x="3.5" y="3.5" width="49" height="49" rx="12" stroke="#99D8CC"/>
+  <rect x="12" y="14" width="32" height="25" rx="5" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.6"/>
+  <circle cx="17" cy="19" r="1.6" fill="#99D8CC"/>
+  <circle cx="22" cy="19" r="1.6" fill="#99D8CC"/>
+  <path d="M17 25H29" stroke="#66717F" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M17 30H25" stroke="#99D8CC" stroke-width="1.8" stroke-linecap="round"/>
+  <circle cx="16" cy="15" r="6" fill="#0F766E"/>
+  <path d="M14.5 13.4L16.1 12.3V18" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="37" cy="36" r="8" fill="#0F766E"/>
+  <path d="M33.4 36.1L36 38.7L41 33.4" stroke="#FFFFFF" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
