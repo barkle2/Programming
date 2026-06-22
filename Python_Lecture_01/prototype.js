@@ -87,6 +87,7 @@ function init() {
           els.resumeDesc.textContent = `${saved.completed.length}단계까지 완료했어요. 이어서 할까요?`;
           els.loginScreen.hidden = true;
           els.resumeScreen.hidden = false;
+          els.loginModal.hidden = false;
         } else {
           startLesson(null);
         }
@@ -94,6 +95,7 @@ function init() {
       }
     }
   } catch {}
+  els.loginModal.hidden = false;
   els.inputName.focus();
 }
 
@@ -130,6 +132,8 @@ async function startLesson(savedData) {
   renderBadges();
   startTimer();
   buildLessonTabs();
+  startHeartbeat();
+  reportProgress();
 }
 
 // 존재하는 레슨 파일을 탐색하고 각 레슨의 완료 여부까지 묶어서 돌려준다(캐시)
@@ -278,6 +282,46 @@ function saveProgress() {
   };
   writeUserStore(state.userEmail, store);
   localStorage.setItem("python_lecture_user", JSON.stringify({ userName: state.userName, userEmail: state.userEmail }));
+  reportProgress();
+}
+
+// ---- 서버로 진행상황/접속 신호 보고 (실패해도 학습에는 지장 없음) ----
+function postJson(path, body) {
+  return fetch(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    keepalive: true
+  }).catch(() => {});
+}
+
+function reportProgress() {
+  if (!state.userEmail || !state.data) return;
+  postJson("/progress", {
+    name: state.userName,
+    email: state.userEmail,
+    lesson: LESSON_NUM,
+    completedCount: state.completed.size,
+    totalSteps: state.data.steps.length,
+    currentIndex: state.currentIndex,
+    badges: state.badges.size,
+    elapsedMs: Date.now() - state.startTime
+  });
+}
+
+function sendHeartbeat() {
+  if (!state.userEmail) return;
+  postJson("/heartbeat", {
+    name: state.userName,
+    email: state.userEmail,
+    lesson: LESSON_NUM
+  });
+}
+
+function startHeartbeat() {
+  if (state.heartbeatId) clearInterval(state.heartbeatId);
+  sendHeartbeat();
+  state.heartbeatId = setInterval(sendHeartbeat, 30000);
 }
 
 function loadProgress(email) {
@@ -490,12 +534,11 @@ function getNewLinesForHint(index) {
     }
   }
 
-  const prevLineSet = new Set(
-    prevCode.split("\n").map((l) => l.trim()).filter(Boolean)
-  );
+  const isNew = computeNewLineFlags(prevCode, expectedCode);
   return expectedCode
+    .replace(/\r/g, "")
     .split("\n")
-    .filter((line) => !prevLineSet.has(line.trim()))
+    .filter((line, idx) => isNew[idx] && line.trim())
     .join("\n")
     .trim();
 }
@@ -662,18 +705,52 @@ function getPrevStepCode(index) {
   return state.data.steps[index - 1].expectedCode;
 }
 
+// LCS(최장 공통 부분수열)로 prevCode와 expectedCode를 줄 단위 정렬해,
+// expectedCode의 각 줄이 '새로 추가된 줄'인지(true) '이전부터 있던 줄'인지(false) 표시한다.
+// 단순 Set 비교와 달리, 같은 내용의 줄이 반복돼도 순서·개수를 지켜 올바르게 구분한다.
+function computeNewLineFlags(prevCode, expectedCode) {
+  const prev = prevCode.replace(/\r/g, "").split("\n");
+  const expected = expectedCode.replace(/\r/g, "").split("\n");
+  const m = prev.length;
+  const n = expected.length;
+
+  const dp = Array.from({ length: m + 1 }, () => new Int32Array(n + 1));
+  for (let i = m - 1; i >= 0; i--) {
+    for (let j = n - 1; j >= 0; j--) {
+      dp[i][j] = prev[i] === expected[j]
+        ? dp[i + 1][j + 1] + 1
+        : Math.max(dp[i + 1][j], dp[i][j + 1]);
+    }
+  }
+
+  const isNew = new Array(n).fill(true);
+  let i = 0;
+  let j = 0;
+  while (i < m && j < n) {
+    if (prev[i] === expected[j]) {
+      isNew[j] = false; // LCS에 포함 = 이전부터 있던 줄
+      i++;
+      j++;
+    } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+      i++;
+    } else {
+      j++;
+    }
+  }
+  return isNew;
+}
+
 // Returns expectedCode with new lines replaced by blank lines,
 // so the editor pre-fill has the same line count as expectedCode.
 function computeFullProgramPrefill(index) {
   if (index <= 0) return "";
   const prevCode = state.data.steps[index - 1].expectedCode;
   const expectedCode = state.data.steps[index].expectedCode;
-  const prevLineSet = new Set(
-    prevCode.split("\n").map((l) => l.trim()).filter(Boolean)
-  );
+  const isNew = computeNewLineFlags(prevCode, expectedCode);
   return expectedCode
+    .replace(/\r/g, "")
     .split("\n")
-    .map((line) => (prevLineSet.has(line.trim()) ? line : ""))
+    .map((line, idx) => (isNew[idx] && line.trim() ? "" : line))
     .join("\n");
 }
 
@@ -681,13 +758,12 @@ function computeFullProgramPrefill(index) {
 function buildFullProgramGhostHtml(index) {
   const prevCode = index > 0 ? state.data.steps[index - 1].expectedCode : "";
   const expectedCode = state.data.steps[index].expectedCode;
-  const prevLineSet = new Set(
-    prevCode.split("\n").map((l) => l.trim()).filter(Boolean)
-  );
+  const isNew = computeNewLineFlags(prevCode, expectedCode);
   return expectedCode
+    .replace(/\r/g, "")
     .split("\n")
-    .map((line) => {
-      const isExisting = !line.trim() || prevLineSet.has(line.trim());
+    .map((line, idx) => {
+      const isExisting = !line.trim() || !isNew[idx];
       return isExisting
         ? `<span class="ghost-prefix">${escapeHtml(line)}</span>`
         : escapeHtml(line);

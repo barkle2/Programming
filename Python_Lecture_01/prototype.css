@@ -306,6 +306,7 @@ code {
   line-height: 1.65;
   color: #115e59;
   font-weight: 600;
+  white-space: pre-line;
 }
 
 .mascot-bubble::before {
@@ -344,6 +345,7 @@ code {
 
 .mission p {
   margin: 6px 0 0;
+  white-space: pre-line;
 }
 
 .practice-panel {
@@ -655,6 +657,8 @@ button:disabled {
 #hintCode {
   margin: 0;
   padding: 12px 14px;
+  height: 240px;
+  overflow-y: auto;
   color: #e5eef8;
   font: 16px/1.55 Consolas, "Cascadia Mono", monospace;
   white-space: pre-wrap;
