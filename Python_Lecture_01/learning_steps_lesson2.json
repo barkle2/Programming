@@ -40,7 +40,7 @@
         }
       ],
       "successMessage": "반복문 완성! 같은 패턴으로 12개 버튼도 한 번에 만들 수 있어요.",
-      "mascot": "images/고드래곤_보통.png",
+      "mascot": "mascot/고드래곤_00_기본.jpg",
       "mascotSpeech": "9번 써야 할 코드를 딱 2줄로! 콜론이랑 들여쓰기만 틀리지 마, 그게 전부야."
     },
     {
@@ -68,7 +68,7 @@
         }
       ],
       "successMessage": "리팩터링 완료! 이제 num_frame에 반복문으로 버튼을 채워봐요.",
-      "mascot": "images/고드래곤_보통.png",
+      "mascot": "mascot/고드래곤_02_팔짱.jpg",
       "mascotSpeech": "button1, button2, button3 삭제! 아깝다고? 반복문이 훨씬 더 잘 만들어 줄 거야."
     },
     {
@@ -94,7 +94,7 @@
         }
       ],
       "successMessage": "번호판 완성! 반복문 하나로 12개 버튼을 만들었어요.",
-      "mascot": "images/고드래곤_놀람.png",
+      "mascot": "mascot/고드래곤_05_놀람.jpg",
       "mascotSpeech": "리스트에서 꺼내고, 위치 계산하고, 줄 바꾸고 — 이 세 가지가 반복문의 핵심이야. 외우지 말고 흐름을 이해해 봐!"
     },
     {
@@ -120,7 +120,7 @@
         }
       ],
       "successMessage": "계산기 버튼이 모두 완성! 이제 버튼 클릭 이벤트를 연결해봐요.",
-      "mascot": "images/고드래곤_보통.png",
+      "mascot": "mascot/고드래곤_06_훗.jpg",
       "mascotSpeech": "L2-03이랑 거의 똑같지? 패턴이 손에 익는 게 느껴지지 않아? 이제 버튼을 누르면 뭔가 일어나야 할 것 같은데..."
     },
     {
@@ -152,7 +152,7 @@
         }
       ],
       "successMessage": "클릭 이벤트 연결 완료! DIY 계산기의 버튼이 모두 살아났어요!",
-      "mascot": "images/고드래곤_놀람.png",
+      "mascot": "mascot/고드래곤_09_아하.jpg",
       "mascotSpeech": "버튼을 클릭하면 드디어 숫자가 입력창에 나타나! 처음으로 살아있는 계산기가 됐어. 기본값 인수 트릭이 핵심이었다고!"
     }
   ],

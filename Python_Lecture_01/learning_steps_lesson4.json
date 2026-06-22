@@ -48,7 +48,7 @@
         }
       ],
       "successMessage": "클립보드 UI가 추가됐어요! F1~F3 버튼으로 저장하고, F4~F6 버튼으로 불러올 수 있습니다.",
-      "mascot": "고드래곤_06.png",
+      "mascot": "mascot/고드래곤_06_훗.jpg",
       "mascotSpeech": "funcClick이랑 buttonClick을 굳이 따로 만드는 이유, 이해됐어? 버튼 클릭은 buttonClick이 맡고, F키 처리는 funcClick이 맡는 거야. 역할을 나누면 코드가 훨씬 보기 편해져. 그리고 cmd_F1처럼 껍데기 함수를 만드는 것도 중요한 포인트야 — command=엔 인수 없는 함수만 들어갈 수 있거든!"
     },
     {
@@ -82,7 +82,7 @@
         }
       ],
       "successMessage": "키보드 F키로도 클립보드를 쓸 수 있게 됐어요! AC 버튼이 클립보드까지 한 번에 지웁니다.",
-      "mascot": "고드래곤_09.png",
+      "mascot": "mascot/고드래곤_09_아하.jpg",
       "mascotSpeech": "F1 같은 특수 키는 key.char엔 아무것도 안 들어와. keysym을 써야 해! 그리고 keysym 블록을 elif로 이으면 char 조건이 먼저 걸렸을 때 F키 검사가 통째로 건너뛰어져 버려. 독립된 if로 새로 시작해야 항상 검사되는 거야. 이게 이번 단계에서 제일 중요한 포인트야!"
     },
     {
@@ -116,7 +116,7 @@
         }
       ],
       "successMessage": "Lesson 4 완성! 백스페이스로 마지막 글자를 지울 수 있어요. 계산기가 완성됐습니다!",
-      "mascot": "고드래곤_05.jpg",
+      "mascot": "mascot/기본버전_04_축하.png",
       "mascotSpeech": "len()으로 글자 수를 세고, delete(display_len-1, END)로 마지막 글자만 쏙 지우는 거야! 인덱스는 0부터 시작하니까 마지막은 항상 display_len-1이라는 거 잊지 마. 글자가 하나도 없을 때도 오류 안 나니까 안심해도 돼. Lesson 4 완성 진심으로 축하해!!",
       "completionBadges": ["Lesson 4 완성자"]
     }

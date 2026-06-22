@@ -140,13 +140,22 @@ function showStatus(msg, ok) {
 
 function updateMascotPreview(filename) {
   const img = el("mascotPreview");
-  if (filename) {
-    img.src = filename;
+  const mascotSrc = getAllowedMascotSrc(filename);
+  if (mascotSrc) {
+    img.src = mascotSrc;
     img.style.display = "block";
   } else {
     img.src = "";
     img.style.display = "none";
   }
+}
+
+function getAllowedMascotSrc(src) {
+  if (!src) return "";
+  const normalized = src.replace(/\\/g, "/");
+  const filename = normalized.split("/").pop();
+  if (!/^(고드래곤|기본버전)_\d{2}_.+\.(png|jpe?g|gif)$/i.test(filename)) return "";
+  return `mascot/${filename}`;
 }
 
 function autoResize(el) {
