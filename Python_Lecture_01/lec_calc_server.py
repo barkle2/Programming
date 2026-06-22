@@ -19,7 +19,7 @@ PORT = 8767
 # ---- 진행상황 추적 설정 ----
 DB_PATH = ROOT / "progress.db"
 # 관리자 대시보드(admin.html) 접근용 토큰. 운영 전에 반드시 바꾸세요.
-ADMIN_TOKEN = "change-me-1234"
+ADMIN_TOKEN = "wlsmdwjdqhghk"
 # 마지막 신호가 이 시간(초) 이내면 '접속 중'으로 본다. 클라이언트 heartbeat 주기보다 길게 잡는다.
 ACTIVE_WINDOW_SEC = 90
 
@@ -71,7 +71,7 @@ except Exception:
 _current_proc = None
 
 
-class PrototypeHandler(SimpleHTTPRequestHandler):
+class LecCalcHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(ROOT), **kwargs)
 
@@ -359,7 +359,7 @@ class PrototypeHandler(SimpleHTTPRequestHandler):
 
 if __name__ == "__main__":
     init_db()
-    server = ThreadingHTTPServer((HOST, PORT), PrototypeHandler)
-    print(f"Serving calculator prototype at http://{HOST}:{PORT}/prototype.html")
+    server = ThreadingHTTPServer((HOST, PORT), LecCalcHandler)
+    print(f"Serving calculator at http://{HOST}:{PORT}/lec_calc.html")
     print(f"Admin dashboard at http://{HOST}:{PORT}/admin.html  (token: {ADMIN_TOKEN})")
     server.serve_forever()

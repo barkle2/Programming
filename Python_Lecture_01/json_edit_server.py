@@ -1,10 +1,12 @@
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import urlparse, parse_qs
 import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 HOST = "localhost"
 PORT = 8768
+VALID_LESSONS = {"1", "2", "3", "4"}
 
 
 class EditorHandler(SimpleHTTPRequestHandler):
@@ -16,12 +18,17 @@ class EditorHandler(SimpleHTTPRequestHandler):
         super().end_headers()
 
     def do_POST(self):
-        if self.path == "/save-lesson":
-            self._handle_save_lesson()
+        parsed = urlparse(self.path)
+        if parsed.path == "/save-lesson":
+            self._handle_save_lesson(parse_qs(parsed.query))
         else:
             self.send_error(404)
 
-    def _handle_save_lesson(self):
+    def _handle_save_lesson(self, query):
+        lesson = (query.get("lesson") or ["1"])[0]
+        if lesson not in VALID_LESSONS:
+            self._send_json(400, {"ok": False, "message": "잘못된 강의 번호예요."})
+            return
         content_length = int(self.headers.get("Content-Length", "0"))
         raw_body = self.rfile.read(content_length)
         try:
@@ -29,12 +36,12 @@ class EditorHandler(SimpleHTTPRequestHandler):
         except Exception:
             self._send_json(400, {"ok": False, "message": "JSON 파싱 실패"})
             return
-        json_path = ROOT / "learning_steps_lesson1.json"
+        json_path = ROOT / f"learning_steps_lesson{lesson}.json"
         json_path.write_text(
             json.dumps(data, ensure_ascii=False, indent=2),
             encoding="utf-8"
         )
-        self._send_json(200, {"ok": True, "message": "저장됐어요."})
+        self._send_json(200, {"ok": True, "message": f"Lesson {lesson} 저장됐어요."})
 
     def _send_json(self, status, payload):
         encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")

@@ -1,20 +1,30 @@
 let data = null;
 let currentIndex = null;
+let currentLesson = "1";
+let dirty = false;
 
 const el = (id) => document.getElementById(id);
 
-async function init() {
+async function loadLesson(lesson) {
   try {
-    const res = await fetch("learning_steps_lesson1.json", { cache: "no-store" });
+    const res = await fetch(`learning_steps_lesson${lesson}.json`, { cache: "no-store" });
     data = await res.json();
   } catch {
-    alert("서버가 실행 중인지 확인해주세요. prototype_server.py로 실행해야 합니다.");
+    alert("서버가 실행 중인지 확인해주세요. 편집기실행.bat 으로 실행해야 합니다.");
     return;
   }
+  currentLesson = lesson;
+  currentIndex = null;
   el("fCourseTitle").value = data.courseTitle || "";
   el("fLessonGoal").value = data.lesson?.goal || "";
   renderStepList();
-  if (data.steps.length > 0) selectStep(0);
+  if (data.steps.length > 0) {
+    selectStep(0);
+  } else {
+    el("stepForm").hidden = true;
+    el("editorPanel").querySelector(".empty-state").hidden = false;
+  }
+  dirty = false;
 }
 
 function renderStepList() {
@@ -119,13 +129,14 @@ async function saveLesson() {
   if (data.lesson) data.lesson.goal = el("fLessonGoal").value.trim();
 
   try {
-    const res = await fetch("/save-lesson", {
+    const res = await fetch(`/save-lesson?lesson=${currentLesson}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data, null, 2)
     });
     const result = await res.json();
-    showStatus(result.ok ? "저장됐어요!" : "저장 실패: " + result.message, result.ok);
+    if (result.ok) dirty = false;
+    showStatus(result.ok ? result.message || "저장됐어요!" : "저장 실패: " + result.message, result.ok);
   } catch {
     showStatus("서버에 연결할 수 없어요.", false);
   }
@@ -177,7 +188,7 @@ el("addStepBtn").addEventListener("click", () => {
   if (currentIndex !== null) saveFormToData();
   const num = data.steps.length + 1;
   data.steps.push({
-    id: `L1-${String(num).padStart(2, "0")}`,
+    id: `L${currentLesson}-${String(num).padStart(2, "0")}`,
     title: "새 단계",
     concepts: [],
     explanation: "",
@@ -189,6 +200,7 @@ el("addStepBtn").addEventListener("click", () => {
   });
   renderStepList();
   selectStep(data.steps.length - 1);
+  dirty = true;
 });
 
 el("deleteStepBtn").addEventListener("click", () => {
@@ -196,6 +208,7 @@ el("deleteStepBtn").addEventListener("click", () => {
   const step = data.steps[currentIndex];
   if (!confirm(`'${step.id} · ${step.title}' 단계를 삭제할까요?`)) return;
   data.steps.splice(currentIndex, 1);
+  dirty = true;
   const nextIndex = Math.min(currentIndex, data.steps.length - 1);
   currentIndex = null;
   renderStepList();
@@ -215,8 +228,33 @@ el("addErrorBtn").addEventListener("click", () => {
 
 el("fMascot").addEventListener("change", (e) => updateMascotPreview(e.target.value));
 
+el("lessonSelect").addEventListener("change", (e) => {
+  const next = e.target.value;
+  if (next === currentLesson) return;
+  if (dirty && !confirm("저장하지 않은 변경사항이 있어요. 다른 강의를 불러오면 사라집니다. 계속할까요?")) {
+    e.target.value = currentLesson;
+    return;
+  }
+  loadLesson(next);
+});
+
 document.addEventListener("input", (e) => {
+  dirty = true;
   if (e.target.classList.contains("auto-resize")) autoResize(e.target);
 });
 
-init();
+// 코드 입력 textarea에서 Tab 키는 포커스 이동 대신 4칸 공백을 넣는다(들여쓰기 편의).
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Tab" || e.shiftKey) return;
+  const t = e.target;
+  if (!(t instanceof HTMLTextAreaElement) || !t.classList.contains("code-textarea")) return;
+  e.preventDefault();
+  const start = t.selectionStart;
+  const end = t.selectionEnd;
+  t.value = `${t.value.slice(0, start)}    ${t.value.slice(end)}`;
+  t.selectionStart = t.selectionEnd = start + 4;
+  dirty = true;
+  if (t.classList.contains("auto-resize")) autoResize(t);
+});
+
+loadLesson(currentLesson);

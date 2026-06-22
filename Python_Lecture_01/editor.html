@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>강의 편집기</title>
-  <link rel="stylesheet" href="prototype.css">
+  <link rel="stylesheet" href="lec_calc.css">
   <link rel="stylesheet" href="editor.css">
 </head>
 <body>
@@ -14,8 +14,16 @@
       <h1>강의 편집기</h1>
     </div>
     <div class="editor-header-actions">
+      <label class="lesson-select-label">강의
+        <select id="lessonSelect">
+          <option value="1">Lesson 1</option>
+          <option value="2">Lesson 2</option>
+          <option value="3">Lesson 3</option>
+          <option value="4">Lesson 4</option>
+        </select>
+      </label>
       <span id="saveStatus"></span>
-      <a href="prototype.html" class="back-link">← 학습 앱</a>
+      <a href="lec_calc.html" class="back-link">← 학습 앱</a>
       <button type="button" id="saveBtn">저장</button>
     </div>
   </header>

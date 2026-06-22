@@ -107,7 +107,7 @@ async function startLesson(savedData) {
     state.data = await response.json();
   } catch {
     els.loginModal.hidden = true;
-    setResult("error", "학습 데이터를 불러오지 못했어요", "로컬 서버로 prototype.html을 열어야 JSON 파일을 읽을 수 있습니다.");
+    setResult("error", "학습 데이터를 불러오지 못했어요", "로컬 서버로 lec_calc.html을 열어야 JSON 파일을 읽을 수 있습니다.");
     return;
   }
 
@@ -181,7 +181,7 @@ async function enforceLessonLock() {
     if (ok) target = Math.max(target, n);
   });
   sessionStorage.setItem("skip_resume", "1");
-  window.location.replace(`prototype.html?lesson=${target}`);
+  window.location.replace(`lec_calc.html?lesson=${target}`);
   return false;
 }
 
@@ -217,7 +217,7 @@ async function buildLessonTabs() {
         localStorage.setItem("python_lecture_user", JSON.stringify({ userName: state.userName, userEmail: state.userEmail }));
       }
       sessionStorage.setItem("skip_resume", "1");
-      window.location.href = `prototype.html?lesson=${n}`;
+      window.location.href = `lec_calc.html?lesson=${n}`;
     });
 
     els.lessonTabs.append(button);
@@ -481,7 +481,7 @@ async function launchPython(code) {
     setConsole("output", result.stdout || "");
     return { ok: true, message: result.message || "Python 실행 요청을 보냈어요." };
   } catch {
-    return { ok: true, message: "현재 서버가 Python 실행 기능을 제공하지 않아요. `prototype_server.py`로 실행해야 실제 Tk 창이 열립니다." };
+    return { ok: true, message: "현재 서버가 Python 실행 기능을 제공하지 않아요. `lec_calc_server.py`로 실행해야 실제 Tk 창이 열립니다." };
   }
 }
 
@@ -514,6 +514,92 @@ function explainPythonError(stderr) {
   return handler ? (handler(q) ?? null) : null;
 }
 
+// 두 줄의 유사도(0~1): 공통 접두사+접미사 길이를 더 긴 줄 길이로 나눈 값.
+// 들여쓰기 차이는 무시하려고 trim 후 비교한다. 한 줄을 고친 경우 점수가 높게 나온다.
+function lineSimilarity(a, b) {
+  const x = a.trim();
+  const y = b.trim();
+  if (!x || !y) return 0;
+  const max = Math.max(x.length, y.length);
+  let p = 0;
+  while (p < x.length && p < y.length && x[p] === y[p]) p++;
+  let s = 0;
+  while (s < x.length - p && s < y.length - p
+    && x[x.length - 1 - s] === y[y.length - 1 - s]) s++;
+  return (p + s) / max;
+}
+
+// 원본에서 연속됐던 줄끼리 한 단락으로 묶고, 떨어져 있던 단락 사이에는 빈 줄을 넣는다.
+// items: [{ line, idx }] (idx = expectedCode에서의 원래 줄 번호, 오름차순)
+function groupIntoBlocks(items) {
+  const blocks = [];
+  let current = null;
+  let prevIdx = -2;
+  items.forEach(({ line, idx }) => {
+    if (current && idx === prevIdx + 1) {
+      current.push(line);
+    } else {
+      current = [line];
+      blocks.push(current);
+    }
+    prevIdx = idx;
+  });
+  return blocks.map((block) => block.join("\n")).join("\n\n");
+}
+
+// expectedCode의 각 줄을 prevCode와 비교해 분류한다(힌트·에디터 prefill·고스트가 공유).
+// 반환:
+//   classified: expectedCode 줄 순서대로 [{ type, line, idx, prevLine? }]
+//     - "existing": 이전에도 있던 줄
+//     - "added":    완전히 새로 추가된 줄
+//     - "modified": 기존 줄을 고친 줄 (prevLine = 고치기 전 줄)
+//   unmatchedDeleted: 새 줄과 짝지어지지 않고 사라진 줄(순수 삭제)
+function classifyExpectedLines(prevCode, expectedCode) {
+  const isNewExp = computeNewLineFlags(prevCode, expectedCode);
+  const isDelPrev = computeNewLineFlags(expectedCode, prevCode);
+  const expArr = expectedCode.replace(/\r/g, "").split("\n");
+  const prevArr = prevCode.replace(/\r/g, "").split("\n");
+
+  const deleted = [];
+  prevArr.forEach((l, i) => { if (isDelPrev[i] && l.trim()) deleted.push(l); });
+  const usedDel = new Array(deleted.length).fill(false);
+
+  const newIdxs = [];
+  expArr.forEach((l, i) => { if (isNewExp[i] && l.trim()) newIdxs.push(i); });
+  const pairedPrev = new Map(); // expIdx -> prevLine (modified로 확정된 새 줄)
+
+  // 1차: 내용(공백 제거)이 똑같은 '사라진 줄'을 먼저 짝짓는다(들여쓰기만 바뀐 수정).
+  // 유사도 짝짓기가 옛 줄을 엉뚱한 새 줄에 가로채지 못하도록 먼저 확정해 둔다.
+  // (예: L2 buttonClick 본문의 key 줄이 L3 else로 이동 → result 줄이 아니라 그 key 줄과 짝지어야 함)
+  newIdxs.forEach((idx) => {
+    const t = expArr[idx].trim();
+    const k = deleted.findIndex((d, j) => !usedDel[j] && d.trim() === t);
+    if (k >= 0) { usedDel[k] = true; pairedPrev.set(idx, deleted[k]); }
+  });
+
+  // 2차: 남은 새 줄을 가장 비슷한(임계 0.5) 남은 사라진 줄과 짝짓는다.
+  newIdxs.forEach((idx) => {
+    if (pairedPrev.has(idx)) return;
+    const line = expArr[idx];
+    let best = -1;
+    let bestScore = 0;
+    deleted.forEach((d, k) => {
+      if (usedDel[k]) return;
+      const score = lineSimilarity(line, d);
+      if (score > bestScore) { bestScore = score; best = k; }
+    });
+    if (best >= 0 && bestScore >= 0.5) { usedDel[best] = true; pairedPrev.set(idx, deleted[best]); }
+  });
+
+  const classified = expArr.map((line, idx) => {
+    if (!(isNewExp[idx] && line.trim())) return { type: "existing", line, idx };
+    if (pairedPrev.has(idx)) return { type: "modified", line, idx, prevLine: pairedPrev.get(idx) };
+    return { type: "added", line, idx };
+  });
+  const unmatchedDeleted = deleted.filter((_, k) => !usedDel[k]);
+  return { classified, unmatchedDeleted };
+}
+
 function getNewLinesForHint(index) {
   const step = state.data.steps[index];
   const expectedCode = step.expectedCode;
@@ -522,24 +608,22 @@ function getNewLinesForHint(index) {
     || (index > 0 ? state.data.steps[index - 1].expectedCode : "");
 
   if (isEditStep(step)) {
-    const prevLines = prevCode.split("\n").map((l) => l.trim()).filter(Boolean);
-    const newLines  = expectedCode.split("\n").map((l) => l.trim()).filter(Boolean);
-    const newLineSet = new Set(newLines);
-    const prevLineSet = new Set(prevLines);
+    const { classified, unmatchedDeleted } = classifyExpectedLines(prevCode, expectedCode);
 
     if (step.validation.editMode === "delete") {
-      const toDelete = prevLines.filter((l) => !newLineSet.has(l));
-      return toDelete.length > 0
-        ? `[삭제할 줄]\n${toDelete.join("\n")}`
+      return unmatchedDeleted.length > 0
+        ? `[삭제할 줄]\n${unmatchedDeleted.join("\n")}`
         : "(삭제할 줄 없음)";
     }
     if (step.validation.editMode === "modify") {
-      const toDelete = prevLines.filter((l) => !newLineSet.has(l));
-      const changed  = newLines.filter((l) => !prevLineSet.has(l));
-      let hint = "";
-      if (changed.length > 0)  hint += `[바꿀 줄]\n${changed.join("\n")}`;
-      if (toDelete.length > 0) hint += `${hint ? "\n\n" : ""}[삭제할 줄]\n${toDelete.join("\n")}`;
-      return hint || expectedCode;
+      // 떨어져 있던 줄끼리는 빈 줄로 단락을 나눈다(groupIntoBlocks).
+      const added = classified.filter((c) => c.type === "added");
+      const changed = classified.filter((c) => c.type === "modified");
+      const parts = [];
+      if (added.length > 0) parts.push(`[추가할 줄]\n${groupIntoBlocks(added)}`);
+      if (changed.length > 0) parts.push(`[바꿀 줄]\n${groupIntoBlocks(changed)}`);
+      if (unmatchedDeleted.length > 0) parts.push(`[삭제할 줄]\n${unmatchedDeleted.join("\n")}`);
+      return parts.join("\n\n") || expectedCode;
     }
   }
 
@@ -575,7 +659,7 @@ async function nextStep() {
       .then((r) => r.ok)
       .catch(() => false);
     if (hasNext) {
-      window.location.href = `prototype.html?lesson=${nextLesson}`;
+      window.location.href = `lec_calc.html?lesson=${nextLesson}`;
     } else {
       showCompletion();
     }
@@ -588,9 +672,8 @@ async function nextStep() {
 function resetStep() {
   const step = getCurrentStep();
   if (isFullProgramMode()) {
-    if (isEditStep(step)) {
-      const prevCode = step.validation?.prevCode
-        || (state.currentIndex > 0 ? state.data.steps[state.currentIndex - 1].expectedCode : "");
+    if (isEditStep(step) && !isModifyStep(step)) {
+      const prevCode = resolvePrevCode(state.currentIndex);
       els.codeInput.value = prevCode ? `${prevCode}\n` : "";
     } else {
       const prefill = computeFullProgramPrefill(state.currentIndex);
@@ -714,6 +797,20 @@ function getPrevStepCode(index) {
   return state.data.steps[index - 1].expectedCode;
 }
 
+// 단계가 기준으로 삼는 '이전 코드'. validation.prevCode가 있으면 우선 사용하고,
+// 없으면 직전 단계의 expectedCode를 쓴다.
+function resolvePrevCode(index) {
+  if (index < 0) return "";
+  const step = state.data.steps[index];
+  return step?.validation?.prevCode
+    || (index > 0 ? state.data.steps[index - 1].expectedCode : "");
+}
+
+// modify 단계인지(추가/수정 줄을 prefill+고스트로 안내). delete 단계는 제외.
+function isModifyStep(step) {
+  return step?.validation?.editMode === "modify";
+}
+
 // LCS(최장 공통 부분수열)로 prevCode와 expectedCode를 줄 단위 정렬해,
 // expectedCode의 각 줄이 '새로 추가된 줄'인지(true) '이전부터 있던 줄'인지(false) 표시한다.
 // 단순 Set 비교와 달리, 같은 내용의 줄이 반복돼도 순서·개수를 지켜 올바르게 구분한다.
@@ -749,33 +846,39 @@ function computeNewLineFlags(prevCode, expectedCode) {
   return isNew;
 }
 
-// Returns expectedCode with new lines replaced by blank lines,
-// so the editor pre-fill has the same line count as expectedCode.
+// 에디터 prefill(expectedCode와 줄 수가 같음):
+//   - added(완전 신규)   → 빈 줄 (학생이 회색 고스트를 보고 입력)
+//   - modified(고칠 줄)  → 고치기 전 줄(흰색 편집 텍스트, 그 자리에서 수정)
+//   - existing(그대로)   → 그대로 둠
 function computeFullProgramPrefill(index) {
-  if (index <= 0) return "";
-  const prevCode = state.data.steps[index - 1].expectedCode;
+  const prevCode = resolvePrevCode(index);
+  if (!prevCode) return "";
   const expectedCode = state.data.steps[index].expectedCode;
-  const isNew = computeNewLineFlags(prevCode, expectedCode);
-  return expectedCode
-    .replace(/\r/g, "")
-    .split("\n")
-    .map((line, idx) => (isNew[idx] && line.trim() ? "" : line))
+  const { classified } = classifyExpectedLines(prevCode, expectedCode);
+  return classified
+    .map((c) => {
+      if (c.type === "added") return "";
+      if (c.type === "modified") return c.prevLine;
+      return c.line;
+    })
     .join("\n");
 }
 
-// Returns ghost HTML: ghost-prefix spans for existing lines, plain text for new lines.
-function buildFullProgramGhostHtml(index) {
-  const prevCode = index > 0 ? state.data.steps[index - 1].expectedCode : "";
+// 고스트 HTML(줄 단위): 아직 '비어 있는 추가할 줄'에만 회색 힌트를 보여준다.
+// 그 줄을 채우면 그 줄 힌트만 사라지고, 바꿀 줄/기존 줄을 편집해도 다른 줄 힌트는 그대로 남는다.
+// existing·modified 줄과 이미 입력된 줄은 흰색 에디터 글씨가 덮도록 투명(ghost-prefix) 처리.
+function buildFullProgramGhostHtml(index, editorValue) {
+  const prevCode = resolvePrevCode(index);
   const expectedCode = state.data.steps[index].expectedCode;
-  const isNew = computeNewLineFlags(prevCode, expectedCode);
-  return expectedCode
-    .replace(/\r/g, "")
-    .split("\n")
-    .map((line, idx) => {
-      const isExisting = !line.trim() || !isNew[idx];
-      return isExisting
-        ? `<span class="ghost-prefix">${escapeHtml(line)}</span>`
-        : escapeHtml(line);
+  const { classified } = classifyExpectedLines(prevCode, expectedCode);
+  const editorLines = editorValue.replace(/\r/g, "").replace(/\n$/, "").split("\n");
+  return classified
+    .map((c, i) => {
+      const editorLine = editorLines[i] ?? "";
+      if (c.type === "added" && c.line.trim() && !editorLine.trim()) {
+        return escapeHtml(c.line);
+      }
+      return `<span class="ghost-prefix">${escapeHtml(editorLine)}</span>`;
     })
     .join("\n");
 }
@@ -789,9 +892,10 @@ function getCodeForEditor(index) {
     if (state.completed.has(step.id)) {
       return `${step.expectedCode}\n`;
     }
-    if (isEditStep(step)) {
-      const prevCode = step.validation?.prevCode
-        || (index > 0 ? state.data.steps[index - 1].expectedCode : "");
+    // delete 단계는 이전 코드 전체를 그대로 채워 학생이 줄을 지우게 한다.
+    // modify 단계는 prefill+고스트 경로(추가할 줄=빈칸+회색, 바꿀 줄=이전 줄 흰색).
+    if (isEditStep(step) && !isModifyStep(step)) {
+      const prevCode = resolvePrevCode(index);
       return prevCode ? `${prevCode}\n` : "";
     }
     const prefill = computeFullProgramPrefill(index);
@@ -812,18 +916,12 @@ function updateCodeGhost() {
       els.codeGhost.innerHTML = "";
       return;
     }
-    if (isEditStep(step)) {
+    if (isEditStep(step) && !isModifyStep(step)) {
       els.codeGhost.innerHTML = "";
       return;
     }
-    const prevCode = getPrevStepCode(state.currentIndex);
-    const editorContent = els.codeInput.value.replace(/\n$/, "");
-    const isUnmodified = normalizeCodeBlock(editorContent) === normalizeCodeBlock(prevCode);
-    if (!isUnmodified) {
-      els.codeGhost.innerHTML = "";
-      return;
-    }
-    els.codeGhost.innerHTML = buildFullProgramGhostHtml(state.currentIndex);
+    // 줄 단위로 '아직 비어 있는 추가할 줄'에만 회색 힌트를 그린다.
+    els.codeGhost.innerHTML = buildFullProgramGhostHtml(state.currentIndex, els.codeInput.value);
     syncGhostScroll();
     return;
   }

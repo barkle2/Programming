@@ -10,6 +10,24 @@
   font-weight: 700;
 }
 
+.lesson-select-label {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 0;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.lesson-select-label select {
+  width: auto;
+  padding: 7px 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .back-link {
   padding: 8px 13px;
   border: 1px solid var(--line);
